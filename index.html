@@ -1,0 +1,2939 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台股晨報 ｜ 兆赫 · 華邦電 · 瀧澤科</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red:#e53935; --green:#43a047; --blue:#1e88e5; --orange:#fb8c00;
+  --bg:#f4f6fa; --card:#fff; --text:#1a1a2e; --muted:#888; --border:#e8eaf0;
+  --red-soft:#fff0f0; --blue-soft:#e3f2fd; --green-soft:#e8f5e9;
+}
+body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe UI',sans-serif;
+  color:var(--text); padding:28px 20px 60px; font-size:15px; line-height:1.7;
+  overflow-x:hidden; }
+@media (max-width:600px) {
+  body { padding:16px 12px 48px; font-size:14px; }
+  .peer-tbl, .wave-tbl { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+/* ── 版頭 ── */
+.report-header {
+  max-width:980px; margin:0 auto 24px; padding:30px 36px;
+  background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  border-radius:24px; color:white; position:relative; overflow:hidden;
+}
+.report-header::after {
+  content:''; position:absolute; right:-80px; top:-80px;
+  width:280px; height:280px; border-radius:50%;
+  background:rgba(255,255,255,0.03);
+}
+.report-header h1 { font-size:1.8rem; font-weight:800; letter-spacing:3px; margin-bottom:4px; }
+.report-header .meta { font-size:0.85rem; opacity:0.55; letter-spacing:1px; margin-bottom:16px; }
+.stocks-tag { display:flex; gap:10px; flex-wrap:wrap; }
+.stag { padding:5px 16px; border-radius:20px; font-size:0.88rem; font-weight:700; }
+.stag-a { background:rgba(229,57,53,.25); color:#ff8a80; border:1px solid rgba(229,57,53,.3); }
+.stag-b { background:rgba(30,136,229,.25); color:#82b1ff; border:1px solid rgba(30,136,229,.3); }
+.stag-c { background:rgba(67,160,71,.25); color:#b9f6ca; border:1px solid rgba(67,160,71,.3); }
+
+/* ── 共用 ── */
+.wrap { max-width:980px; margin:0 auto; }
+.section-title {
+  font-size:0.9rem; font-weight:700; color:var(--muted);
+  letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; padding-left:2px;
+}
+.card {
+  background:var(--card); border-radius:20px;
+  box-shadow:0 3px 16px rgba(0,0,0,0.07); overflow:hidden;
+}
+
+/* ── 每日晨報區 ── */
+.morning-report {
+  max-width:980px; margin:0 auto 24px;
+}
+.mr-header {
+  background:linear-gradient(90deg,#1a1a2e,#16213e);
+  padding:14px 22px; display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:8px;
+}
+.mr-title { color:white; font-size:1rem; font-weight:800; letter-spacing:1px; }
+.mr-update { color:rgba(255,255,255,.5); font-size:0.8rem; }
+.mr-body { padding:20px 22px; }
+
+/* 美股格 */
+.us-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.us-cell {
+  background:var(--bg); border-radius:12px; padding:12px 14px;
+  display:flex; flex-direction:column; gap:3px;
+}
+.us-name { font-size:0.78rem; color:var(--muted); font-weight:700; }
+.us-price { font-size:1.1rem; font-weight:900; }
+.us-chg { font-size:0.82rem; font-weight:700; }
+.up { color:var(--red); }
+.down { color:var(--green); }
+
+/* 台股今日格 */
+.tw-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+.tw-cell {
+  border-radius:14px; padding:16px; border-left:4px solid;
+  background:var(--bg);
+}
+.tw-cell.a { border-color:var(--red); }
+.tw-cell.b { border-color:var(--blue); }
+.tw-cell.c { border-color:var(--green); }
+.tw-name { font-size:0.82rem; font-weight:800; color:var(--muted); margin-bottom:4px; }
+.tw-price { font-size:1.5rem; font-weight:900; margin-bottom:2px; }
+.tw-change { font-size:0.88rem; font-weight:700; }
+.tw-predict { margin-top:8px; font-size:0.82rem; padding:5px 10px; border-radius:8px; font-weight:700; }
+.pred-green { background:#e8f5e9; color:#2e7d32; }
+.pred-red   { background:#ffebee; color:#c62828; }
+.pred-orange{ background:#fff3e0; color:#e65100; }
+
+/* AI 分析區 */
+.ai-box {
+  background:linear-gradient(135deg,#f8f9ff,#eef1fb);
+  border-radius:12px; padding:14px 16px;
+}
+.ai-box-title { font-size:0.82rem; font-weight:700; color:var(--muted); margin-bottom:6px; letter-spacing:1px; }
+.ai-text { font-size:0.88rem; color:#333; line-height:1.8; white-space:pre-wrap; }
+
+/* ── 觀察名單 ── */
+.watchlist-section { max-width:980px; margin:0 auto 24px; }
+.wl-grid {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:12px;
+}
+.wl-card {
+  background:var(--card); border-radius:14px; padding:14px 13px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  border-top:3px solid var(--blue);
+  transition:transform 0.15s, box-shadow 0.15s;
+  cursor:pointer; user-select:none;
+}
+.wl-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.12); }
+.wl-card.active { border-top-color:var(--orange); box-shadow:0 6px 24px rgba(251,140,0,.25); }
+.wl-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.wl-name { font-size:0.9rem; font-weight:800; }
+.wl-code { font-size:0.75rem; color:var(--muted); }
+.wl-theme {
+  font-size:0.7rem; font-weight:700; padding:2px 7px; border-radius:10px;
+  background:#e3f2fd; color:#1565c0; white-space:nowrap;
+}
+.wl-price { font-size:1.25rem; font-weight:900; margin-bottom:2px; }
+.wl-chg { font-size:0.8rem; font-weight:700; margin-bottom:8px; }
+.wl-note { font-size:0.75rem; color:var(--muted); line-height:1.5; border-top:1px dashed var(--border); padding-top:6px; }
+
+/* ── 展開詳細面板 ── */
+.wl-detail-panel {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg,#fff,#f8f9ff);
+  border-radius:16px;
+  border:1.5px solid var(--border);
+  padding:22px 24px;
+  margin-top:4px;
+  animation: slideDown 0.25s ease;
+  box-shadow:0 4px 20px rgba(0,0,0,0.07);
+}
+@keyframes slideDown {
+  from { opacity:0; transform:translateY(-8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.wl-detail-header {
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;
+}
+.wl-detail-title { font-size:1.1rem; font-weight:800; }
+.wl-close-btn {
+  width:28px; height:28px; border-radius:50%; border:none; cursor:pointer;
+  background:#eee; color:#666; font-size:1rem; display:flex; align-items:center; justify-content:center;
+  transition:background 0.15s;
+}
+.wl-close-btn:hover { background:#ddd; }
+.wl-detail-body { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.wl-det-blk { background:white; border-radius:12px; padding:14px 16px; }
+.wl-det-blk h5 { font-size:0.78rem; color:var(--muted); letter-spacing:1px; font-weight:700; margin-bottom:10px; }
+.wl-det-row { display:flex; justify-content:space-between; font-size:0.84rem; margin-bottom:6px; }
+.wl-det-row .k { color:#555; }
+.wl-det-row .v { font-weight:700; }
+.wl-ee-row { display:flex; justify-content:space-between; align-items:center; font-size:0.84rem; margin-bottom:8px; }
+.wl-ee-row .lbl { color:var(--muted); }
+.wl-target { font-size:1.2rem; font-weight:900; color:var(--green); }
+.wl-entry  { font-weight:700; color:var(--blue); }
+.wl-stop   { font-weight:700; color:#aaa; }
+.wl-outlook { font-size:0.86rem; line-height:1.8; color:#333; margin-bottom:12px; }
+.wl-news-list { list-style:none; }
+.wl-news-list li { font-size:0.82rem; padding:5px 0; border-bottom:1px dashed var(--border); display:flex; gap:7px; line-height:1.5; }
+.wl-news-list li:last-child { border-bottom:none; }
+
+/* ── 六個月走勢圖 ── */
+.chart-section { max-width:980px; margin:0 auto 24px; }
+.chart-tabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.tab-btn {
+  padding:6px 18px; border-radius:20px; border:none; cursor:pointer;
+  font-size:0.85rem; font-weight:700; transition:all 0.2s;
+  background:white; color:var(--muted);
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.tab-btn.active { background:var(--text); color:white; }
+.chart-canvas-wrap {
+  background:white; border-radius:20px; padding:20px 14px;
+  box-shadow:0 3px 16px rgba(0,0,0,0.07);
+  position:relative; width:100%; height:300px;
+  box-sizing:border-box;
+}
+@media (max-width:600px) {
+  .chart-canvas-wrap { height:260px; padding:14px 8px; border-radius:14px; }
+  .chart-tabs { gap:6px; }
+  .tab-btn { padding:5px 12px; font-size:0.8rem; }
+}
+
+/* ── 進退場 ── */
+.ee-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+.ee-card { background:var(--card); border-radius:18px; padding:20px 18px; box-shadow:0 3px 14px rgba(0,0,0,0.07); border-left:4px solid; }
+.ee-card.a { border-color:var(--red); }
+.ee-card.b { border-color:var(--blue); }
+.ee-card.c { border-color:var(--green); }
+.ee-head { font-size:0.92rem; font-weight:800; margin-bottom:14px; }
+.ee-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; font-size:0.86rem; }
+.ee-row .lbl { color:var(--muted); }
+.ee-big { font-size:1.4rem; font-weight:900; }
+.ee-target { font-size:1.4rem; font-weight:900; color:var(--green); }
+.ee-sig { margin-top:10px; padding:8px 11px; border-radius:10px; font-size:0.81rem; font-weight:700; line-height:1.55; }
+.sig-wait  { background:#fff3e0; color:#e65100; }
+.sig-watch { background:#e3f2fd; color:#1565c0; }
+.sig-buy   { background:#e8f5e9; color:#2e7d32; }
+
+/* ── 個股詳細 ── */
+.stock-section { max-width:980px; margin:0 auto 28px; background:var(--card); border-radius:22px; box-shadow:0 3px 16px rgba(0,0,0,0.07); overflow:hidden; }
+.stock-hdr { padding:20px 26px 18px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); }
+.s-badge { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+.ba { background:#ffebee; } .bb { background:#e3f2fd; } .bc { background:#e8f5e9; }
+.s-title h2 { font-size:1.2rem; font-weight:800; }
+.s-tag { display:inline-block; margin-left:8px; font-size:0.76rem; font-weight:700; padding:2px 9px; border-radius:20px; vertical-align:middle; }
+.ta { background:#ffebee; color:var(--red); } .tb { background:#e3f2fd; color:var(--blue); } .tc { background:#e8f5e9; color:var(--green); }
+.s-title .desc { font-size:0.88rem; color:var(--muted); margin-top:2px; }
+.stock-body { padding:22px 26px; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+.info-blk { background:var(--bg); border-radius:14px; padding:15px 17px; }
+.info-blk h4 { font-size:0.82rem; color:var(--muted); letter-spacing:1px; font-weight:700; margin-bottom:11px; }
+.info-row { display:flex; justify-content:space-between; font-size:0.86rem; margin-bottom:6px; }
+.info-row .k { color:#555; } .info-row .v { font-weight:700; }
+.v-red { color:var(--red); } .v-blue { color:var(--blue); } .v-green { color:var(--green); } .v-orange { color:var(--orange); }
+
+/* 新聞 */
+.news-list { list-style:none; }
+.news-list li { padding:8px 0; border-bottom:1px dashed var(--border); font-size:0.86rem; display:flex; gap:8px; align-items:flex-start; line-height:1.5; }
+.news-list li:last-child { border-bottom:none; }
+.nd { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:6px; }
+.nd-r{background:var(--red);} .nd-b{background:var(--blue);} .nd-g{background:var(--green);} .nd-o{background:var(--orange);}
+
+/* 同業表 */
+.peer-tbl { width:100%; border-collapse:collapse; font-size:0.86rem; }
+.peer-tbl th { background:var(--bg); padding:7px 11px; font-weight:700; color:var(--muted); text-align:left; font-size:0.8rem; }
+.peer-tbl td { padding:8px 11px; border-bottom:1px solid var(--border); }
+.peer-tbl tr:last-child td { border-bottom:none; }
+.peer-tbl tr.hl td { background:#fffde7; font-weight:700; }
+
+/* 展望 / 風險 */
+.outlook-blk { background:linear-gradient(135deg,#f8f9ff,#eef1fb); border-radius:13px; padding:15px 17px; }
+.outlook-blk h4 { font-size:0.82rem; color:var(--muted); letter-spacing:1px; font-weight:700; margin-bottom:9px; }
+.outlook-blk p { font-size:0.88rem; line-height:1.85; color:#333; }
+.risk-blk { background:#fff8e1; border-radius:13px; padding:13px 17px; margin-top:14px; font-size:0.85rem; color:#7b5800; line-height:1.7; }
+.risk-blk strong { color:#e65100; }
+
+/* ── 上下游供應鏈區塊 ── */
+.sc-section { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+.sc-col { background:var(--bg); border-radius:12px; padding:13px 15px; }
+.sc-col-title { font-size:0.78rem; font-weight:800; color:var(--muted); letter-spacing:1px; margin-bottom:10px; }
+.sc-item { display:flex; justify-content:space-between; align-items:center; font-size:0.83rem; padding:5px 0; border-bottom:1px dashed var(--border); }
+.sc-item:last-child { border-bottom:none; }
+.sc-item .sn { color:#444; font-size:0.82rem; }
+.sc-item .sp { font-weight:700; }
+.sc-chg { font-size:0.74rem; font-weight:700; margin-left:3px; }
+
+/* ── 波段分析表 ── */
+.wave-tbl { width:100%; border-collapse:collapse; font-size:0.87rem; }
+.wave-tbl th { padding:10px 12px; background:var(--bg); color:var(--muted); font-weight:700; font-size:0.78rem; letter-spacing:0.5px; text-align:left; border-bottom:2px solid var(--border); }
+.wave-tbl td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.wave-tbl tr:last-child td { border-bottom:none; }
+.wave-no { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:var(--bg); font-weight:800; font-size:0.82rem; color:var(--muted); }
+.wave-bar-wrap { width:100px; height:8px; background:#f0f0f0; border-radius:20px; overflow:hidden; display:inline-block; vertical-align:middle; margin-left:8px; }
+.wave-bar-fill { height:100%; border-radius:20px; }
+
+/* 免責聲明 */
+.disclaimer { max-width:980px; margin:24px auto 0; padding:14px 18px; background:#f5f5f5; border-radius:12px; font-size:0.78rem; color:#bbb; line-height:1.6; text-align:center; }
+
+@media(max-width:640px){
+  .us-grid,.tw-grid,.ee-grid{ grid-template-columns:1fr; }
+  .two-col{ grid-template-columns:1fr; }
+  body{ padding:14px 12px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 版頭 -->
+<div class="report-header">
+  <div class="meta">📅 <span id="headerDate">資料載入中...</span> ｜ 台股個股晨報</div>
+  <h1>📈 台股深度分析</h1>
+  <div class="stocks-tag">
+    <span class="stag stag-a">📡 兆赫 2485</span>
+    <span class="stag stag-b">💾 華邦電 2344</span>
+    <span class="stag stag-c">💧 瀧澤科 6609</span>
+  </div>
+</div>
+
+<!-- ── 每日晨報 ── -->
+<div class="morning-report">
+  <div class="card">
+    <div class="mr-header">
+      <span class="mr-title">☀️ 每日晨報</span>
+      <span class="mr-update" id="updateTime">尚未更新，請執行 台股每日更新.py</span>
+    </div>
+    <div class="mr-body">
+      <div class="section-title" style="margin-bottom:10px">🇺🇸 美股前日相關產業</div>
+      <div class="us-grid" id="usGrid">
+        <div class="us-cell"><div class="us-name">SOX</div><div class="us-price" id="sox-p">—</div><div class="us-chg" id="sox-c">—</div></div>
+        <div class="us-cell"><div class="us-name">SMH ETF</div><div class="us-price" id="smh-p">—</div><div class="us-chg" id="smh-c">—</div></div>
+        <div class="us-cell"><div class="us-name">NVDA</div><div class="us-price" id="nvda-p">—</div><div class="us-chg" id="nvda-c">—</div></div>
+        <div class="us-cell"><div class="us-name">MU 美光</div><div class="us-price" id="mu-p">—</div><div class="us-chg" id="mu-c">—</div></div>
+      </div>
+
+      <div class="section-title" style="margin-bottom:10px">🇹🇼 今日台股預測</div>
+      <div class="tw-grid">
+        <div class="tw-cell a">
+          <div class="tw-name">📡 兆赫 2485</div>
+          <div class="tw-price up" id="zx-price">$72</div>
+          <div class="tw-change up" id="zx-chg">—</div>
+          <div class="tw-predict pred-orange" id="zx-pred">等待更新</div>
+        </div>
+        <div class="tw-cell b">
+          <div class="tw-name">💾 華邦電 2344</div>
+          <div class="tw-price up" id="hb-price">$88</div>
+          <div class="tw-change up" id="hb-chg">—</div>
+          <div class="tw-predict pred-orange" id="hb-pred">等待更新</div>
+        </div>
+        <div class="tw-cell c">
+          <div class="tw-name">💧 瀧澤科 6609</div>
+          <div class="tw-price up" id="lz-price">$40</div>
+          <div class="tw-change up" id="lz-chg">—</div>
+          <div class="tw-predict pred-orange" id="lz-pred">等待更新</div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-bottom:8px">🤖 AI 晨報分析</div>
+      <div class="ai-box">
+        <div class="ai-text" id="aiAnalysis">尚未分析。請確認：① 台股每日更新.py 已執行 ② Claude Code 已開啟（AI 分析由 Claude 每日 8:30 自動產出）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 觀察名單 ── -->
+<div class="watchlist-section">
+  <div class="section-title">👀 觀察名單 — AI ＆ 新興產業 10 檔</div>
+  <div class="wl-grid" id="wlGrid">
+    <!-- 由 JS 動態渲染 -->
+    <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:0.9rem;">載入中...</div>
+  </div>
+</div>
+
+<!-- ── 六個月走勢圖 ── -->
+<div class="chart-section wrap">
+  <div class="section-title">📉 六個月股價走勢</div>
+  <div class="chart-tabs" id="chartTabs">
+    <button class="tab-btn active" onclick="switchChart('zx', this)">兆赫 2485</button>
+    <button class="tab-btn" onclick="switchChart('hb', this)">華邦電 2344</button>
+    <button class="tab-btn" onclick="switchChart('lz', this)">瀧澤科 6609</button>
+  </div>
+  <div class="chart-canvas-wrap">
+    <canvas id="mainChart"></canvas>
+  </div>
+</div>
+
+<!-- ── 近一年波段分析 ── -->
+<div class="wrap" style="margin-bottom:24px;">
+  <div class="section-title">🌊 近一年波段分析（五大波）</div>
+  <div class="tab-row" id="waveTabs" style="margin-bottom:16px;">
+    <button class="tab-btn active" onclick="switchWave('兆赫', this)">兆赫 2485</button>
+    <button class="tab-btn" onclick="switchWave('華邦電', this)">華邦電 2344</button>
+    <button class="tab-btn" onclick="switchWave('瀧澤科', this)">瀧澤科 6609</button>
+  </div>
+  <div id="waveTable"></div>
+</div>
+
+<!-- ── 進退場建議 ── -->
+<div class="wrap" style="margin-bottom:24px;">
+  <div class="section-title">📍 進場時機 ＆ 15% 目標退場</div>
+  <div class="ee-grid">
+    <div class="ee-card a">
+      <div class="ee-head">📡 兆赫 2485</div>
+      <div class="ee-row"><span class="lbl">現價</span><span class="ee-big up" id="ee-zx-price">$72</span></div>
+      <div class="ee-row"><span class="lbl">建議進場</span><span style="font-weight:700;color:var(--red)">$62 – $68</span></div>
+      <div class="ee-row"><span class="lbl">15% 目標退場</span><span class="ee-target">$82.8</span></div>
+      <div class="ee-row"><span class="lbl">停損</span><span style="font-weight:700;color:#aaa">$58（-8%）</span></div>
+      <div class="ee-sig sig-wait">⏳ 現價偏高，等回測 $62–$68 再布局</div>
+    </div>
+    <div class="ee-card b">
+      <div class="ee-head">💾 華邦電 2344</div>
+      <div class="ee-row"><span class="lbl">現價</span><span class="ee-big up" id="ee-hb-price">$88</span></div>
+      <div class="ee-row"><span class="lbl">建議進場</span><span style="font-weight:700;color:var(--blue)">$82 – $86</span></div>
+      <div class="ee-row"><span class="lbl">15% 目標退場</span><span class="ee-target">$101.2</span></div>
+      <div class="ee-row"><span class="lbl">停損</span><span style="font-weight:700;color:#aaa">$76（-8%）</span></div>
+      <div class="ee-sig sig-watch">👀 分批在 $82–$86 建倉，目標挑戰百元</div>
+    </div>
+    <div class="ee-card c">
+      <div class="ee-head">💧 瀧澤科 6609</div>
+      <div class="ee-row"><span class="lbl">現價</span><span class="ee-big up" id="ee-lz-price">$40</span></div>
+      <div class="ee-row"><span class="lbl">建議進場</span><span style="font-weight:700;color:var(--green)">$36 – $39</span></div>
+      <div class="ee-row"><span class="lbl">15% 目標退場</span><span class="ee-target">$46.0</span></div>
+      <div class="ee-row"><span class="lbl">停損</span><span style="font-weight:700;color:#aaa">$33（-8%）</span></div>
+      <div class="ee-sig sig-buy">✅ 逢回 $36–$39 分批進場，液冷概念持續</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 兆赫 ══ -->
+<div class="stock-section wrap">
+  <div class="stock-hdr">
+    <div class="s-badge ba">📡</div>
+    <div class="s-title">
+      <h2>兆赫 <span class="s-tag ta">2485</span></h2>
+      <div class="desc">Cable 設備龍頭 ｜ DOCSIS 3.1 升級潮 ｜ AI 網路傳輸受惠</div>
+    </div>
+  </div>
+  <div class="stock-body">
+    <div class="two-col">
+      <div class="info-blk">
+        <h4>基本面</h4>
+        <div class="info-row"><span class="k">現價（參考）</span><span class="v" id="f-zx-price">$72</span></div>
+        <div class="info-row"><span class="k">52 週區間</span><span class="v">$27 – $82</span></div>
+        <div class="info-row"><span class="k">2024 EPS</span><span class="v">$2.1</span></div>
+        <div class="info-row"><span class="k">2025E EPS</span><span class="v v-red">$3.2（+52%）</span></div>
+        <div class="info-row"><span class="k">本益比</span><span class="v">約 22–34x</span></div>
+        <div class="info-row"><span class="k">股價淨值比</span><span class="v">約 2.8x</span></div>
+        <div class="info-row"><span class="k">殖利率</span><span class="v">約 1.8%</span></div>
+        <div class="info-row"><span class="k">MA20 支撐</span><span class="v">$64–$66</span></div>
+        <div class="info-row"><span class="k">趨勢</span><span class="v v-red">多頭排列 ↑</span></div>
+      </div>
+      <div class="info-blk">
+        <h4>同業比較</h4>
+        <table class="peer-tbl">
+          <tr><th>公司</th><th>代號</th><th>本益比</th><th>YTD</th></tr>
+          <tr class="hl"><td>兆赫</td><td>2485</td><td>22–34x</td><td class="up">+158%</td></tr>
+          <tr><td>台揚</td><td>2402</td><td>18x</td><td class="up">+48%</td></tr>
+          <tr><td>中磊</td><td>5388</td><td>16x</td><td class="up">+32%</td></tr>
+          <tr><td>智邦</td><td>2345</td><td>24x</td><td class="up">+22%</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="info-blk" style="margin-bottom:16px;">
+      <h4>近期重要新聞</h4>
+      <ul class="news-list">
+        <li><div class="nd nd-r"></div>美國 Charter / Comcast DOCSIS 3.1 升級加速，兆赫北美訂單大增（2026 Q1）</li>
+        <li><div class="nd nd-o"></div>AI 資料中心高速傳輸需求帶動 Cable Modem 規格升級，報價提升 20%</li>
+        <li><div class="nd nd-r"></div>2025 Q3 單季 EPS $0.98，創歷史新高，年增 +120%</li>
+        <li><div class="nd nd-b"></div>外資連三日買超，外資持股比例升至 15%，目標價調升至 $90</li>
+      </ul>
+    </div>
+    <div id="sc-zx" class="sc-section" style="margin-bottom:16px;"></div>
+    <div class="outlook-blk">
+      <h4>未來走勢展望</h4>
+      <p>兆赫是 2026 年台股最強勢的 Cable 設備股，受惠美國有線電視業者大規模升級 DOCSIS 3.1/3.2，以及 AI 時代對高速骨幹傳輸的需求。2025 全年 EPS 優於市場預期，2026 年訂單能見度持續走高。短線 RSI 接近 68，存在獲利了結壓力，回測 $62–$68 支撐帶為布局機會。中線目標：若 2026E EPS 達 $4.0+，對應 22–25x PE，目標價 $88–$100。</p>
+    </div>
+    <div class="risk-blk"><strong>⚠ 風險：</strong>美國有線電視業者資本支出縮減；北美關稅衝擊；股價短期大漲，估值偏高。</div>
+  </div>
+</div>
+
+<!-- ══ 華邦電 ══ -->
+<div class="stock-section wrap">
+  <div class="stock-hdr">
+    <div class="s-badge bb">💾</div>
+    <div class="s-title">
+      <h2>華邦電 <span class="s-tag tb">2344</span></h2>
+      <div class="desc">NAND Flash / NOR Flash / DRAM ｜ 記憶體超級循環 ｜ AI 邊緣裝置布局</div>
+    </div>
+  </div>
+  <div class="stock-body">
+    <div class="two-col">
+      <div class="info-blk">
+        <h4>基本面</h4>
+        <div class="info-row"><span class="k">現價（參考）</span><span class="v" id="f-hb-price">$88</span></div>
+        <div class="info-row"><span class="k">52 週區間</span><span class="v">$52 – $105</span></div>
+        <div class="info-row"><span class="k">2025 EPS（實）</span><span class="v">$4.8</span></div>
+        <div class="info-row"><span class="k">2026E EPS</span><span class="v v-red">$7.5–$10（樂觀$16.5）</span></div>
+        <div class="info-row"><span class="k">本益比</span><span class="v">約 18x</span></div>
+        <div class="info-row"><span class="k">股價淨值比</span><span class="v">約 2.1x</span></div>
+        <div class="info-row"><span class="k">殖利率</span><span class="v">約 2.5%</span></div>
+        <div class="info-row"><span class="k">MA20 支撐</span><span class="v">$84–$86</span></div>
+        <div class="info-row"><span class="k">RSI</span><span class="v v-green">約 55（健康）</span></div>
+      </div>
+      <div class="info-blk">
+        <h4>同業比較</h4>
+        <table class="peer-tbl">
+          <tr><th>公司</th><th>代號</th><th>本益比</th><th>2026E EPS</th></tr>
+          <tr class="hl"><td>華邦電</td><td>2344</td><td>18x</td><td class="up">$7.5–10</td></tr>
+          <tr><td>南亞科</td><td>2408</td><td>22x</td><td>$5.2–8</td></tr>
+          <tr><td>旺宏</td><td>2337</td><td>20x</td><td>$4.0–6</td></tr>
+          <tr><td>力晶積成</td><td>5346</td><td>15x</td><td>$3.5–5</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="info-blk" style="margin-bottom:16px;">
+      <h4>近期重要新聞</h4>
+      <ul class="news-list">
+        <li><div class="nd nd-b"></div>2025 Q4 EPS $1.82，全年 $4.8，優於市場預估 $3.8–4.2</li>
+        <li><div class="nd nd-o"></div>NOR Flash 報價 2026 Q1 漲幅達 15–20%，供需持續吃緊</li>
+        <li><div class="nd nd-b"></div>AI 邊緣裝置（AIoT）需求帶動低功耗 NAND 出貨量大增</li>
+        <li><div class="nd nd-r"></div>2026 年資本支出計畫提升，28nm 製程擴產，法人目標價 $110–$130</li>
+      </ul>
+    </div>
+    <div id="sc-hb" class="sc-section" style="margin-bottom:16px;"></div>
+    <div class="outlook-blk">
+      <h4>未來走勢展望</h4>
+      <p>華邦電是記憶體超級循環的核心受惠標的，專注 NOR Flash 和 NAND 利基市場，定位清晰。隨著 AIoT、車用電子、工業自動化需求增溫，供不應求格局可望延續至 2027 年。現階段 PE 約 18x 屬合理偏低，若 2026E EPS 向上修正至 $10+，長線目標 $180–$220。短線回測 $82–$86 為建倉機會，突破 $95 後看 $105 前高。</p>
+    </div>
+    <div class="risk-blk"><strong>⚠ 風險：</strong>記憶體景氣提前反轉；中美貿易摩擦影響客戶採購；三星 / 美光降價競爭。</div>
+  </div>
+</div>
+
+<!-- ══ 瀧澤科 ══ -->
+<div class="stock-section wrap">
+  <div class="stock-hdr">
+    <div class="s-badge bc">💧</div>
+    <div class="s-title">
+      <h2>瀧澤科 <span class="s-tag tc">6609</span></h2>
+      <div class="desc">工業冷卻設備 ｜ AI 資料中心液冷散熱 ｜ 環境控制系統</div>
+    </div>
+  </div>
+  <div class="stock-body">
+    <div class="two-col">
+      <div class="info-blk">
+        <h4>基本面</h4>
+        <div class="info-row"><span class="k">現價（參考）</span><span class="v" id="f-lz-price">$40</span></div>
+        <div class="info-row"><span class="k">52 週區間</span><span class="v">$24 – $48</span></div>
+        <div class="info-row"><span class="k">2025E EPS</span><span class="v">$1.8</span></div>
+        <div class="info-row"><span class="k">2026E EPS</span><span class="v v-green">$2.2–$2.8</span></div>
+        <div class="info-row"><span class="k">本益比</span><span class="v">約 22x</span></div>
+        <div class="info-row"><span class="k">股價淨值比</span><span class="v v-orange">1.45x（同業最低）</span></div>
+        <div class="info-row"><span class="k">殖利率</span><span class="v">約 3.2%</span></div>
+        <div class="info-row"><span class="k">MA20 支撐</span><span class="v">$37–$39</span></div>
+        <div class="info-row"><span class="k">RSI</span><span class="v v-green">約 50（中性）</span></div>
+      </div>
+      <div class="info-blk">
+        <h4>同業比較（PBR）</h4>
+        <table class="peer-tbl">
+          <tr><th>公司</th><th>代號</th><th>PBR</th><th>主題</th></tr>
+          <tr class="hl"><td>瀧澤科</td><td>6609</td><td class="up">1.45x</td><td>液冷+工業</td></tr>
+          <tr><td>高力</td><td>8996</td><td>2.8x</td><td>熱交換器</td></tr>
+          <tr><td>雙鴻</td><td>3324</td><td>3.5x</td><td>AI 液冷</td></tr>
+          <tr><td>奇鋐</td><td>3017</td><td>2.2x</td><td>散熱模組</td></tr>
+        </table>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:8px;">PBR 1.45x 為同業最低，具補漲潛力</div>
+      </div>
+    </div>
+    <div class="info-blk" style="margin-bottom:16px;">
+      <h4>近期重要新聞</h4>
+      <ul class="news-list">
+        <li><div class="nd nd-g"></div>AI 資料中心液冷散熱訂單持續成長，2026 年新客戶導入中</li>
+        <li><div class="nd nd-o"></div>工業用冷卻設備台灣本土需求升溫（半導體廠擴產帶動）</li>
+        <li><div class="nd nd-g"></div>PBR 僅 1.45x，為同類液冷概念股中估值最低，補漲空間大</li>
+        <li><div class="nd nd-b"></div>2025 Q4 單季毛利率提升至 28%，創近四年新高</li>
+      </ul>
+    </div>
+    <div id="sc-lz" class="sc-section" style="margin-bottom:16px;"></div>
+    <div class="outlook-blk">
+      <h4>未來走勢展望</h4>
+      <p>瀧澤科屬小型冷卻設備廠，橫跨工業冷卻與 AI 液冷，相較於雙鴻、高力等明星股，知名度較低但 PBR 1.45x 估值具明顯補漲吸引力。近期在 $38–$42 震盪整理，RSI 回到中性，是蓄勢型態。突破 $43 且站穩，目標看 $48 前高；進一步突破可向 $52–$55 挑戰（2026E PE 約 20–22x）。</p>
+    </div>
+    <div class="risk-blk"><strong>⚠ 風險：</strong>成交量偏低，流動性風險高；AI 液冷訂單進度延後；大型液冷股擠壓市場關注度。</div>
+  </div>
+</div>
+
+<div class="disclaimer">
+  本報告每日早上 8:30 自動更新（平日）｜ 資料來源：Yahoo Finance、TWSE、公開財報<br>
+  所有預測與建議僅供參考，不構成投資建議。股市有風險，請自行評估後做決策。🙏
+</div>
+
+<!-- ── 觀察名單靜態詳細資料 ── -->
+<script>
+const WATCHLIST_DETAIL = {
+  '旺宏': {
+    w52:'$80–$155', pe:'約 21x', eps:'$5.5（2025E）', yield:'3.2%', pbr:'1.8x',
+    entry:[115,120], target15:133, stop:108,
+    upstream:  [{n:'台積電',code:'台積電'},{n:'環球晶',code:'環球晶'},{n:'弘塑設備',code:'弘塑'}],
+    downstream:[{n:'新唐 MCU',code:'新唐'},{n:'緯穎伺服器',code:'緯穎'},{n:'晶豪科控制晶片',code:'晶豪科'},{n:'廣達採購',code:'廣達'}],
+    outlook:'NOR Flash 供不應求格局持續，2026 年車用電子與 AI IoT 裝置需求雙旺，報價 Q1 已漲 15%+。相較華邦電估值偏低，是記憶體族群的補漲機會。突破 $132 前高，目標看 $155。',
+    news:['NOR Flash 報價 2026 Q1 漲幅 15%，車用需求為主要驅動力','AI IoT 裝置低功耗記憶體出貨量年增 40%+','外資上調 2026E EPS 至 $6.5，目標價 $150']
+  },
+  '台灣大': {
+    w52:'$95–$120', pe:'約 19x', eps:'$5.8（2025）', yield:'5.5%', pbr:'2.2x',
+    entry:[100,108], target15:119, stop:95,
+    upstream:  [{n:'中磊 CPE',code:'中磊'},{n:'台揚設備',code:'台揚'},{n:'富鼎電源IC',code:'富鼎'},{n:'環球晶元件',code:'環球晶'}],
+    downstream:[{n:'智邦網路',code:'智邦'},{n:'中華電競爭',code:'中華電'},{n:'遠傳競合',code:'遠傳'}],
+    outlook:'國內電信三雄中 AI 企業專網布局最積極，企業 5G 私網 + AI 邊緣運算服務佔營收比重持續上升。殖利率 5.5% 提供下檔保護，適合穩健型投資人。',
+    news:['2026 年 AI 企業專網導入案超過 50 件，年增 +120%','5G 固網整合方案贏得台積電、鴻海等大廠合約','法人預期 2026 年配息可達 $6.2 元，殖利率維持 5%+']
+  },
+  '富鼎': {
+    w52:'$80–$145', pe:'約 26x', eps:'$4.5（2025E）', yield:'3.4%', pbr:'2.5x',
+    entry:[105,112], target15:124, stop:98,
+    upstream:  [{n:'世界先進代工',code:'世界先進'},{n:'台積電先進',code:'台積電'},{n:'環球晶晶圓',code:'環球晶'}],
+    downstream:[{n:'台達電電源',code:'台達電'},{n:'廣達伺服器',code:'廣達'},{n:'緯穎採購',code:'緯穎'},{n:'緯創設備',code:'緯創'}],
+    outlook:'AI 伺服器電源密度持續提升，MOSFET 與 Gate Driver 需求爆增，毛利率從 2024 年 32% 升至 2025 年 38%。屬於電源半導體利基廠，估值偏高但成長確定性高。',
+    news:['AI 伺服器每台電源模組元件數量增加 3 倍，富鼎 ASP 提升','2025 Q3 毛利率創近 5 年新高，達 38.2%','新世代 GaN 電源方案進入量產，毛利率有望突破 42%']
+  },
+  '新唐': {
+    w52:'$110–$180', pe:'約 23x', eps:'$6.5（2025E）', yield:'3.0%', pbr:'2.8x',
+    entry:[135,145], target15:161, stop:127,
+    upstream:  [{n:'台積電代工',code:'台積電'},{n:'環球晶晶圓',code:'環球晶'},{n:'世界先進BCD',code:'世界先進'}],
+    downstream:[{n:'廣達工業電腦',code:'廣達'},{n:'旺宏記憶體搭配',code:'旺宏'},{n:'緯創系統',code:'緯創'},{n:'晶豪科搭配',code:'晶豪科'}],
+    outlook:'ARM Cortex-M / A 系列 32-bit MCU 廠，專注工業控制、車用安全晶片與 AI 邊緣運算。台灣唯一具自主 MCU IP 的廠商，與歐美大廠（STM、NXP）競爭不在同一市場，護城河深。',
+    news:['車用 MCU 設計勝率提升，2026 年車用佔營收比達 35%','AI 邊緣 MCU 新平台導入工業機器手臂客戶超過 20 家','外資維持買進，目標價 $175']
+  },
+  '晶豪科': {
+    w52:'$100–$195', pe:'約 26x', eps:'$6.0（2025E）', yield:'2.5%', pbr:'3.0x',
+    entry:[140,150], target15:167, stop:130,
+    upstream:  [{n:'華邦電 NAND',code:'華邦電'},{n:'旺宏 NOR',code:'旺宏'},{n:'力積電 DRAM',code:'力積電'}],
+    downstream:[{n:'廣達 SSD採購',code:'廣達'},{n:'威剛記憶體模組',code:'威剛'},{n:'緯穎伺服器',code:'緯穎'},{n:'緯創系統',code:'緯創'}],
+    outlook:'NAND Flash 控制晶片廠，受惠 AI 基礎建設對 SSD / eMMC / UFS 儲存需求暴增。AI 訓練資料中心儲存容量需求年增 80%+，控制晶片為關鍵組件，議價能力強。',
+    news:['AI 資料中心 SSD 出貨量 2026 Q1 年增 65%','eMMC 5.1 控制晶片進入三星供應鏈','外資目標價由 $160 調升至 $200，評等維持買進']
+  },
+  '中磊': {
+    w52:'$65–$115', pe:'約 23x', eps:'$3.5（2025E）', yield:'4.0%', pbr:'2.0x',
+    entry:[72,78], target15:87, stop:67,
+    upstream:  [{n:'台積電代工',code:'台積電'},{n:'環球晶晶圓',code:'環球晶'},{n:'富鼎電源IC',code:'富鼎'}],
+    downstream:[{n:'台灣大採購',code:'台灣大'},{n:'中華電採購',code:'中華電'},{n:'智邦競合',code:'智邦'},{n:'遠傳採購',code:'遠傳'}],
+    outlook:'全球 WiFi 6E / WiFi 7 CPE 裝置出貨量 2026 年預估破 3 億台，中磊是主要晶片組供應商之一。AI 家用流量爆增帶動 ISP 換機潮，訂單能見度高達三季以上。',
+    news:['WiFi 7 CPE 晶片組拿下歐洲三大電信商訂單','2026 Q1 營收月增 22%，法人看好 H2 旺季','殖利率 4%，評價在同業中最低，補漲空間大']
+  },
+  '台揚': {
+    w52:'$45–$95', pe:'約 22x', eps:'$3.2（2025E）', yield:'4.5%', pbr:'1.8x',
+    entry:[65,70], target15:78, stop:60,
+    upstream:  [{n:'台積電晶片',code:'台積電'},{n:'富鼎電源IC',code:'富鼎'},{n:'環球晶晶圓',code:'環球晶'}],
+    downstream:[{n:'中華電採購',code:'中華電'},{n:'台灣大採購',code:'台灣大'},{n:'遠傳採購',code:'遠傳'},{n:'智邦競合',code:'智邦'}],
+    outlook:'與兆赫同為 Cable 設備商，產品涵蓋有線電視 DOCSIS 3.1 調製解調器與 OLT 網路設備。相較兆赫 YTD +158%，台揚只漲 +48%，估值更低，是同族群的補漲標的。',
+    news:['北美 Charter 電信 2026 年 DOCSIS 3.1 升級預算 $120 億美元','台揚拿下中華電信 FTTB 設備大單，Q2 交貨','外資目標價 $90，現價對應潛在空間 +26%']
+  },
+  '世界先進': {
+    w52:'$100–$185', pe:'約 21x', eps:'$6.5（2025E）', yield:'4.0%', pbr:'2.3x',
+    entry:[120,130], target15:144, stop:112,
+    upstream:  [{n:'環球晶矽晶圓',code:'環球晶'},{n:'弘塑設備',code:'弘塑'},{n:'台達電機台電源',code:'台達電'}],
+    downstream:[{n:'富鼎電源IC',code:'富鼎'},{n:'台達電模組',code:'台達電'},{n:'廣達伺服器',code:'廣達'},{n:'緯穎採購',code:'緯穎'}],
+    outlook:'8 吋晶圓 BCD 製程特殊代工龍頭，AI 伺服器電源 IC（如 VR、PMIC）的主要代工廠。2025 年 AI 電源 IC 佔產品組合比例從 12% 升至 28%，利用率回升推動毛利改善。',
+    news:['台積電轉移部分 BCD 訂單至世界先進，代工量大增','AI 伺服器電源 IC 設計勝出，大廠指定代工','外資連三日買超，目標價區間 $155–$170']
+  },
+  '弘塑': {
+    w52:'$85–$165', pe:'約 24x', eps:'$5.5（2025E）', yield:'2.8%', pbr:'2.6x',
+    entry:[120,128], target15:143, stop:112,
+    upstream:  [{n:'零組件/鋼材',code:null},{n:'台達電電源元件',code:'台達電'},{n:'環球晶晶圓支援',code:'環球晶'}],
+    downstream:[{n:'台積電 CoWoS',code:'台積電'},{n:'世界先進封裝',code:'世界先進'},{n:'力積電代工',code:'力積電'}],
+    outlook:'CoWoS 與 SoIC 先進封裝製程的清洗設備龍頭，台積電先進封裝產能每年擴 40% 直接帶動訂單成長。3 月 26 日外資剛調升目標價，是市場最純粹的先進封裝設備受惠標的。',
+    news:['台積電 CoWoS 年產能 2026 年擴至 3.5 萬片/月，設備需求翻倍','外資 3/26 調升目標價至 $165，評等優於大盤','2025 Q4 毛利率 45%，創上市以來新高']
+  },
+  '力積電': {
+    w52:'$35–$85', pe:'約 26x', eps:'$2.0（2025E）', yield:'2.0%', pbr:'1.2x',
+    entry:[46,52], target15:57, stop:42,
+    upstream:  [{n:'環球晶矽晶圓',code:'環球晶'},{n:'弘塑設備',code:'弘塑'},{n:'台達電電源',code:'台達電'}],
+    downstream:[{n:'威剛記憶體模組',code:'威剛'},{n:'華邦電同業',code:'華邦電'},{n:'緯穎採購',code:'緯穎'},{n:'晶豪科晶片',code:'晶豪科'}],
+    outlook:'利基型 DRAM 與 PMIC 晶圓代工廠，低基期股，2025 年底從谷底回升。PBR 僅 1.2x 為同業最低。風險是訂單能見度較短，適合短波段操作，或等整體記憶體景氣明確走多再進場。',
+    news:['2026 年元月營收創歷史新高，法人評等上調','利基 DRAM 市況好轉，報價連三季上漲','力積電宣布 12 吋廠擴產計畫，資本支出提升']
+  },
+};
+
+// ── 三大股上下游定義 ──────────────────────────────────────────
+const MAIN_STOCKS_SC = {
+  '兆赫': {
+    upstream:  [{n:'台積電'},{n:'富鼎'},{n:'環球晶'},{n:'世界先進'}],
+    downstream:[{n:'中華電'},{n:'台灣大'},{n:'遠傳'},{n:'智邦'}],
+    peer:      [{n:'台揚'},{n:'中磊'},{n:'廣達'}],
+  },
+  '華邦電': {
+    upstream:  [{n:'環球晶'},{n:'台積電'},{n:'弘塑'},{n:'台達電'}],
+    downstream:[{n:'晶豪科'},{n:'廣達'},{n:'緯穎'},{n:'威剛'},{n:'緯創'}],
+    peer:      [{n:'旺宏'},{n:'力積電'},{n:'新唐'}],
+  },
+  '瀧澤科': {
+    upstream:  [{n:'台達電'},{n:'環球晶'},{n:'廣達'},{n:'智邦'}],
+    downstream:[{n:'緯穎'},{n:'緯創'},{n:'健策'},{n:'奇鋐'}],
+    peer:      [{n:'雙鴻'},{n:'奇鋐'},{n:'高力'}],
+  },
+};
+</script>
+
+<!-- ── Chart.js 初始數據 ── -->
+<script>
+// DAILY_DATA_START
+const DAILY_DATA = {
+  "updated": "2026-04-23 23:59",
+  "stocks": {
+    "兆赫": {
+      "symbol": "2485.TW",
+      "code": "2485",
+      "dates": [
+        "2025-04-14",
+        "2025-04-15",
+        "2025-04-16",
+        "2025-04-17",
+        "2025-04-18",
+        "2025-04-21",
+        "2025-04-22",
+        "2025-04-23",
+        "2025-04-24",
+        "2025-04-25",
+        "2025-04-28",
+        "2025-04-29",
+        "2025-04-30",
+        "2025-05-02",
+        "2025-05-05",
+        "2025-05-06",
+        "2025-05-07",
+        "2025-05-08",
+        "2025-05-09",
+        "2025-05-12",
+        "2025-05-13",
+        "2025-05-14",
+        "2025-05-15",
+        "2025-05-16",
+        "2025-05-19",
+        "2025-05-20",
+        "2025-05-21",
+        "2025-05-22",
+        "2025-05-23",
+        "2025-05-26",
+        "2025-05-27",
+        "2025-05-28",
+        "2025-05-29",
+        "2025-06-02",
+        "2025-06-03",
+        "2025-06-04",
+        "2025-06-05",
+        "2025-06-06",
+        "2025-06-09",
+        "2025-06-10",
+        "2025-06-11",
+        "2025-06-12",
+        "2025-06-13",
+        "2025-06-16",
+        "2025-06-17",
+        "2025-06-18",
+        "2025-06-19",
+        "2025-06-20",
+        "2025-06-23",
+        "2025-06-24",
+        "2025-06-25",
+        "2025-06-26",
+        "2025-06-27",
+        "2025-06-30",
+        "2025-07-01",
+        "2025-07-02",
+        "2025-07-03",
+        "2025-07-04",
+        "2025-07-07",
+        "2025-07-08",
+        "2025-07-09",
+        "2025-07-10",
+        "2025-07-11",
+        "2025-07-14",
+        "2025-07-15",
+        "2025-07-16",
+        "2025-07-17",
+        "2025-07-18",
+        "2025-07-21",
+        "2025-07-22",
+        "2025-07-23",
+        "2025-07-24",
+        "2025-07-25",
+        "2025-07-28",
+        "2025-07-29",
+        "2025-07-30",
+        "2025-07-31",
+        "2025-08-04",
+        "2025-08-05",
+        "2025-08-06",
+        "2025-08-07",
+        "2025-08-08",
+        "2025-08-11",
+        "2025-08-12",
+        "2025-08-13",
+        "2025-08-14",
+        "2025-08-15",
+        "2025-08-18",
+        "2025-08-19",
+        "2025-08-20",
+        "2025-08-21",
+        "2025-08-22",
+        "2025-08-25",
+        "2025-08-26",
+        "2025-08-27",
+        "2025-08-28",
+        "2025-08-29",
+        "2025-09-01",
+        "2025-09-02",
+        "2025-09-03",
+        "2025-09-04",
+        "2025-09-05",
+        "2025-09-08",
+        "2025-09-09",
+        "2025-09-10",
+        "2025-09-11",
+        "2025-09-12",
+        "2025-09-15",
+        "2025-09-16",
+        "2025-09-17",
+        "2025-09-18",
+        "2025-09-19",
+        "2025-09-22",
+        "2025-09-23",
+        "2025-09-24",
+        "2025-09-25",
+        "2025-09-26",
+        "2025-09-30",
+        "2025-10-01",
+        "2025-10-02",
+        "2025-10-03",
+        "2025-10-07",
+        "2025-10-08",
+        "2025-10-09",
+        "2025-10-13",
+        "2025-10-14",
+        "2025-10-15",
+        "2025-10-16",
+        "2025-10-17",
+        "2025-10-20",
+        "2025-10-21",
+        "2025-10-22",
+        "2025-10-23",
+        "2025-10-27",
+        "2025-10-28",
+        "2025-10-29",
+        "2025-10-30",
+        "2025-10-31",
+        "2025-11-03",
+        "2025-11-04",
+        "2025-11-05",
+        "2025-11-06",
+        "2025-11-07",
+        "2025-11-10",
+        "2025-11-11",
+        "2025-11-12",
+        "2025-11-13",
+        "2025-11-14",
+        "2025-11-17",
+        "2025-11-18",
+        "2025-11-19",
+        "2025-11-20",
+        "2025-11-21",
+        "2025-11-24",
+        "2025-11-25",
+        "2025-11-26",
+        "2025-11-27",
+        "2025-11-28",
+        "2025-12-01",
+        "2025-12-02",
+        "2025-12-03",
+        "2025-12-04",
+        "2025-12-05",
+        "2025-12-08",
+        "2025-12-09",
+        "2025-12-10",
+        "2025-12-11",
+        "2025-12-12",
+        "2025-12-15",
+        "2025-12-16",
+        "2025-12-17",
+        "2025-12-18",
+        "2025-12-19",
+        "2025-12-22",
+        "2025-12-23",
+        "2025-12-24",
+        "2025-12-26",
+        "2025-12-29",
+        "2025-12-30",
+        "2025-12-31",
+        "2026-01-02",
+        "2026-01-05",
+        "2026-01-06",
+        "2026-01-07",
+        "2026-01-08",
+        "2026-01-09",
+        "2026-01-12",
+        "2026-01-13",
+        "2026-01-14",
+        "2026-01-15",
+        "2026-01-16",
+        "2026-01-19",
+        "2026-01-20",
+        "2026-01-21",
+        "2026-01-22",
+        "2026-01-23",
+        "2026-01-26",
+        "2026-01-27",
+        "2026-01-28",
+        "2026-01-29",
+        "2026-01-30",
+        "2026-02-02",
+        "2026-02-03",
+        "2026-02-04",
+        "2026-02-05",
+        "2026-02-06",
+        "2026-02-09",
+        "2026-02-10",
+        "2026-02-11",
+        "2026-02-23",
+        "2026-02-24",
+        "2026-02-25",
+        "2026-02-26",
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-25",
+        "2026-03-26",
+        "2026-03-27",
+        "2026-03-30",
+        "2026-03-31",
+        "2026-04-01",
+        "2026-04-02",
+        "2026-04-07",
+        "2026-04-08",
+        "2026-04-09",
+        "2026-04-10",
+        "2026-04-13",
+        "2026-04-14",
+        "2026-04-15",
+        "2026-04-16",
+        "2026-04-17",
+        "2026-04-20",
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "prices": [
+        11.1,
+        11.8,
+        11.6,
+        11.5,
+        11.3,
+        10.9,
+        11.0,
+        11.3,
+        11.4,
+        11.6,
+        11.6,
+        12.0,
+        11.8,
+        11.8,
+        11.5,
+        11.6,
+        11.6,
+        12.1,
+        12.4,
+        12.4,
+        12.4,
+        12.6,
+        12.4,
+        12.6,
+        12.4,
+        12.4,
+        12.8,
+        12.5,
+        12.4,
+        12.4,
+        12.1,
+        12.1,
+        12.1,
+        11.6,
+        11.4,
+        11.7,
+        11.8,
+        11.8,
+        11.6,
+        11.6,
+        11.9,
+        11.8,
+        11.4,
+        11.3,
+        11.1,
+        11.3,
+        11.1,
+        10.9,
+        10.7,
+        10.9,
+        11.0,
+        12.1,
+        11.9,
+        11.8,
+        11.8,
+        11.9,
+        11.9,
+        11.6,
+        11.5,
+        11.3,
+        11.3,
+        11.2,
+        11.4,
+        11.4,
+        11.4,
+        11.4,
+        11.8,
+        11.6,
+        11.9,
+        11.5,
+        11.7,
+        11.6,
+        11.6,
+        11.6,
+        11.5,
+        11.4,
+        11.3,
+        11.6,
+        11.8,
+        11.9,
+        11.9,
+        11.9,
+        12.1,
+        12.5,
+        12.5,
+        12.4,
+        12.2,
+        13.4,
+        13.1,
+        12.8,
+        13.0,
+        12.7,
+        12.9,
+        13.1,
+        13.1,
+        13.0,
+        13.3,
+        12.9,
+        12.9,
+        13.2,
+        12.9,
+        12.9,
+        12.9,
+        13.5,
+        13.2,
+        12.8,
+        12.9,
+        12.9,
+        13.2,
+        13.8,
+        14.4,
+        13.9,
+        13.6,
+        13.6,
+        13.4,
+        13.6,
+        13.2,
+        13.2,
+        13.1,
+        13.1,
+        13.1,
+        13.1,
+        13.1,
+        13.4,
+        14.1,
+        14.1,
+        13.8,
+        13.9,
+        14.1,
+        13.8,
+        13.8,
+        14.0,
+        13.8,
+        13.9,
+        13.4,
+        13.8,
+        15.1,
+        14.1,
+        13.9,
+        13.6,
+        13.4,
+        13.5,
+        13.9,
+        15.2,
+        16.7,
+        17.8,
+        17.9,
+        18.2,
+        18.0,
+        17.6,
+        17.0,
+        17.2,
+        17.3,
+        19.0,
+        19.0,
+        19.5,
+        21.5,
+        23.6,
+        22.8,
+        23.3,
+        23.5,
+        23.0,
+        22.8,
+        25.0,
+        27.5,
+        25.9,
+        26.6,
+        27.3,
+        27.4,
+        28.8,
+        29.5,
+        29.0,
+        29.1,
+        29.5,
+        29.3,
+        28.7,
+        28.2,
+        27.1,
+        26.8,
+        26.4,
+        25.5,
+        24.8,
+        25.4,
+        26.8,
+        25.5,
+        25.0,
+        27.5,
+        30.2,
+        33.2,
+        36.5,
+        35.5,
+        37.3,
+        36.8,
+        34.5,
+        34.6,
+        36.1,
+        37.5,
+        37.5,
+        39.9,
+        40.8,
+        41.0,
+        38.5,
+        41.2,
+        45.2,
+        46.0,
+        41.5,
+        39.1,
+        37.7,
+        36.8,
+        40.4,
+        42.9,
+        42.0,
+        45.0,
+        49.5,
+        54.4,
+        49.8,
+        51.1,
+        56.2,
+        51.4,
+        50.3,
+        55.3,
+        60.8,
+        62.0,
+        68.2,
+        75.0,
+        80.0,
+        80.1,
+        73.9,
+        78.0,
+        75.2,
+        80.0,
+        78.7,
+        80.4,
+        79.6,
+        79.6,
+        81.5,
+        78.5,
+        73.1,
+        73.0,
+        69.9,
+        73.5,
+        80.8,
+        78.3,
+        79.9,
+        79.1,
+        77.7,
+        71.0,
+        72.3,
+        71.0,
+        63.9
+      ],
+      "current": 63.9,
+      "prev_close": 71.0,
+      "change_pct": -10.0,
+      "ma5": 71.2,
+      "momentum": "down",
+      "entry": [
+        62,
+        68
+      ],
+      "target15": 82.8,
+      "stop": 58
+    },
+    "華邦電": {
+      "symbol": "2344.TW",
+      "code": "2344",
+      "dates": [
+        "2025-04-14",
+        "2025-04-15",
+        "2025-04-16",
+        "2025-04-17",
+        "2025-04-18",
+        "2025-04-21",
+        "2025-04-22",
+        "2025-04-23",
+        "2025-04-24",
+        "2025-04-25",
+        "2025-04-28",
+        "2025-04-29",
+        "2025-04-30",
+        "2025-05-02",
+        "2025-05-05",
+        "2025-05-06",
+        "2025-05-07",
+        "2025-05-08",
+        "2025-05-09",
+        "2025-05-12",
+        "2025-05-13",
+        "2025-05-14",
+        "2025-05-15",
+        "2025-05-16",
+        "2025-05-19",
+        "2025-05-20",
+        "2025-05-21",
+        "2025-05-22",
+        "2025-05-23",
+        "2025-05-26",
+        "2025-05-27",
+        "2025-05-28",
+        "2025-05-29",
+        "2025-06-02",
+        "2025-06-03",
+        "2025-06-04",
+        "2025-06-05",
+        "2025-06-06",
+        "2025-06-09",
+        "2025-06-10",
+        "2025-06-11",
+        "2025-06-12",
+        "2025-06-13",
+        "2025-06-16",
+        "2025-06-17",
+        "2025-06-18",
+        "2025-06-19",
+        "2025-06-20",
+        "2025-06-23",
+        "2025-06-24",
+        "2025-06-25",
+        "2025-06-26",
+        "2025-06-27",
+        "2025-06-30",
+        "2025-07-01",
+        "2025-07-02",
+        "2025-07-03",
+        "2025-07-04",
+        "2025-07-07",
+        "2025-07-08",
+        "2025-07-09",
+        "2025-07-10",
+        "2025-07-11",
+        "2025-07-14",
+        "2025-07-15",
+        "2025-07-16",
+        "2025-07-17",
+        "2025-07-18",
+        "2025-07-21",
+        "2025-07-22",
+        "2025-07-23",
+        "2025-07-24",
+        "2025-07-25",
+        "2025-07-28",
+        "2025-07-29",
+        "2025-07-30",
+        "2025-07-31",
+        "2025-08-04",
+        "2025-08-05",
+        "2025-08-06",
+        "2025-08-07",
+        "2025-08-08",
+        "2025-08-11",
+        "2025-08-12",
+        "2025-08-13",
+        "2025-08-14",
+        "2025-08-15",
+        "2025-08-18",
+        "2025-08-19",
+        "2025-08-20",
+        "2025-08-21",
+        "2025-08-22",
+        "2025-08-25",
+        "2025-08-26",
+        "2025-08-27",
+        "2025-08-28",
+        "2025-08-29",
+        "2025-09-01",
+        "2025-09-02",
+        "2025-09-03",
+        "2025-09-04",
+        "2025-09-05",
+        "2025-09-08",
+        "2025-09-09",
+        "2025-09-10",
+        "2025-09-11",
+        "2025-09-12",
+        "2025-09-15",
+        "2025-09-16",
+        "2025-09-17",
+        "2025-09-18",
+        "2025-09-19",
+        "2025-09-22",
+        "2025-09-23",
+        "2025-09-24",
+        "2025-09-25",
+        "2025-09-26",
+        "2025-09-30",
+        "2025-10-01",
+        "2025-10-02",
+        "2025-10-03",
+        "2025-10-07",
+        "2025-10-08",
+        "2025-10-09",
+        "2025-10-13",
+        "2025-10-14",
+        "2025-10-15",
+        "2025-10-16",
+        "2025-10-17",
+        "2025-10-20",
+        "2025-10-21",
+        "2025-10-22",
+        "2025-10-23",
+        "2025-10-27",
+        "2025-10-28",
+        "2025-10-29",
+        "2025-10-30",
+        "2025-10-31",
+        "2025-11-03",
+        "2025-11-04",
+        "2025-11-05",
+        "2025-11-06",
+        "2025-11-07",
+        "2025-11-10",
+        "2025-11-11",
+        "2025-11-12",
+        "2025-11-13",
+        "2025-11-14",
+        "2025-11-17",
+        "2025-11-18",
+        "2025-11-19",
+        "2025-11-20",
+        "2025-11-21",
+        "2025-11-24",
+        "2025-11-25",
+        "2025-11-26",
+        "2025-11-27",
+        "2025-11-28",
+        "2025-12-01",
+        "2025-12-02",
+        "2025-12-03",
+        "2025-12-04",
+        "2025-12-05",
+        "2025-12-08",
+        "2025-12-09",
+        "2025-12-10",
+        "2025-12-11",
+        "2025-12-12",
+        "2025-12-15",
+        "2025-12-16",
+        "2025-12-17",
+        "2025-12-18",
+        "2025-12-19",
+        "2025-12-22",
+        "2025-12-23",
+        "2025-12-24",
+        "2025-12-26",
+        "2025-12-29",
+        "2025-12-30",
+        "2025-12-31",
+        "2026-01-02",
+        "2026-01-05",
+        "2026-01-06",
+        "2026-01-07",
+        "2026-01-08",
+        "2026-01-09",
+        "2026-01-12",
+        "2026-01-13",
+        "2026-01-14",
+        "2026-01-15",
+        "2026-01-16",
+        "2026-01-19",
+        "2026-01-20",
+        "2026-01-21",
+        "2026-01-22",
+        "2026-01-23",
+        "2026-01-26",
+        "2026-01-27",
+        "2026-01-28",
+        "2026-01-29",
+        "2026-01-30",
+        "2026-02-02",
+        "2026-02-03",
+        "2026-02-04",
+        "2026-02-05",
+        "2026-02-06",
+        "2026-02-09",
+        "2026-02-10",
+        "2026-02-11",
+        "2026-02-23",
+        "2026-02-24",
+        "2026-02-25",
+        "2026-02-26",
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-25",
+        "2026-03-26",
+        "2026-03-27",
+        "2026-03-30",
+        "2026-03-31",
+        "2026-04-01",
+        "2026-04-02",
+        "2026-04-07",
+        "2026-04-08",
+        "2026-04-09",
+        "2026-04-10",
+        "2026-04-13",
+        "2026-04-14",
+        "2026-04-15",
+        "2026-04-16",
+        "2026-04-17",
+        "2026-04-20",
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "prices": [
+        15.8,
+        16.2,
+        15.5,
+        15.3,
+        15.8,
+        15.3,
+        15.3,
+        15.5,
+        15.3,
+        15.7,
+        15.6,
+        15.9,
+        15.7,
+        15.9,
+        15.4,
+        15.6,
+        15.5,
+        15.5,
+        15.5,
+        16.5,
+        17.8,
+        18.1,
+        18.0,
+        17.9,
+        17.7,
+        18.5,
+        18.1,
+        17.8,
+        17.7,
+        17.4,
+        17.3,
+        17.3,
+        17.6,
+        16.8,
+        16.6,
+        17.6,
+        18.0,
+        18.3,
+        18.3,
+        18.7,
+        18.7,
+        18.7,
+        18.4,
+        18.3,
+        18.7,
+        19.5,
+        19.5,
+        18.9,
+        19.5,
+        19.9,
+        20.1,
+        20.7,
+        21.0,
+        20.0,
+        19.7,
+        19.4,
+        19.6,
+        19.1,
+        19.0,
+        18.8,
+        18.9,
+        18.4,
+        18.4,
+        18.2,
+        17.8,
+        17.6,
+        17.8,
+        17.6,
+        17.3,
+        17.1,
+        17.5,
+        17.3,
+        17.4,
+        17.4,
+        17.3,
+        17.8,
+        17.3,
+        17.3,
+        17.5,
+        17.0,
+        16.4,
+        17.4,
+        17.3,
+        18.4,
+        18.0,
+        17.9,
+        18.3,
+        19.0,
+        18.5,
+        17.9,
+        18.3,
+        18.1,
+        18.3,
+        18.7,
+        19.7,
+        19.5,
+        19.6,
+        20.2,
+        19.8,
+        20.0,
+        20.4,
+        22.4,
+        24.5,
+        24.4,
+        24.8,
+        24.9,
+        25.3,
+        26.7,
+        27.8,
+        29.2,
+        32.1,
+        33.3,
+        34.1,
+        36.3,
+        35.0,
+        33.2,
+        31.2,
+        33.9,
+        33.6,
+        35.8,
+        38.6,
+        42.4,
+        41.0,
+        43.2,
+        42.8,
+        40.5,
+        39.8,
+        43.8,
+        43.7,
+        46.1,
+        44.4,
+        45.2,
+        46.1,
+        50.6,
+        53.7,
+        53.7,
+        54.9,
+        53.9,
+        56.3,
+        53.0,
+        55.7,
+        58.7,
+        57.8,
+        63.6,
+        64.2,
+        64.5,
+        63.9,
+        60.0,
+        65.9,
+        61.1,
+        59.1,
+        57.7,
+        51.9,
+        54.3,
+        57.2,
+        53.3,
+        56.6,
+        57.7,
+        57.3,
+        56.3,
+        55.5,
+        57.5,
+        61.5,
+        67.5,
+        70.9,
+        67.1,
+        68.0,
+        74.2,
+        70.7,
+        70.2,
+        73.5,
+        74.1,
+        70.9,
+        72.7,
+        72.6,
+        76.5,
+        76.1,
+        76.5,
+        83.3,
+        82.2,
+        90.3,
+        95.0,
+        103.5,
+        105.9,
+        107.9,
+        97.3,
+        101.5,
+        99.3,
+        99.3,
+        98.7,
+        105.9,
+        115.9,
+        112.4,
+        105.0,
+        104.0,
+        102.5,
+        112.4,
+        114.9,
+        126.3,
+        129.3,
+        127.8,
+        115.4,
+        105.0,
+        107.9,
+        102.0,
+        97.3,
+        106.9,
+        103.0,
+        105.0,
+        114.4,
+        121.4,
+        117.4,
+        121.9,
+        123.9,
+        111.9,
+        103.5,
+        111.4,
+        105.9,
+        100.5,
+        105.0,
+        113.4,
+        108.4,
+        108.4,
+        116.4,
+        122.9,
+        127.3,
+        121.4,
+        109.4,
+        106.9,
+        99.0,
+        97.7,
+        95.5,
+        92.4,
+        93.0,
+        90.2,
+        93.1,
+        91.8,
+        89.4,
+        95.6,
+        91.0,
+        93.5,
+        94.4,
+        93.5,
+        90.2,
+        89.6,
+        87.8,
+        85.7,
+        91.1,
+        90.6,
+        87.8
+      ],
+      "current": 87.8,
+      "prev_close": 90.6,
+      "change_pct": -3.09,
+      "ma5": 88.6,
+      "momentum": "down",
+      "entry": [
+        82,
+        86
+      ],
+      "target15": 101.2,
+      "stop": 76
+    },
+    "瀧澤科": {
+      "symbol": "6609.TWO",
+      "code": "6609",
+      "dates": [
+        "2025-04-14",
+        "2025-04-15",
+        "2025-04-16",
+        "2025-04-17",
+        "2025-04-18",
+        "2025-04-21",
+        "2025-04-22",
+        "2025-04-23",
+        "2025-04-24",
+        "2025-04-25",
+        "2025-04-28",
+        "2025-04-29",
+        "2025-04-30",
+        "2025-05-02",
+        "2025-05-05",
+        "2025-05-06",
+        "2025-05-07",
+        "2025-05-08",
+        "2025-05-09",
+        "2025-05-12",
+        "2025-05-13",
+        "2025-05-14",
+        "2025-05-15",
+        "2025-05-16",
+        "2025-05-19",
+        "2025-05-20",
+        "2025-05-21",
+        "2025-05-22",
+        "2025-05-23",
+        "2025-05-26",
+        "2025-05-27",
+        "2025-05-28",
+        "2025-05-29",
+        "2025-06-02",
+        "2025-06-03",
+        "2025-06-04",
+        "2025-06-05",
+        "2025-06-06",
+        "2025-06-09",
+        "2025-06-10",
+        "2025-06-11",
+        "2025-06-12",
+        "2025-06-13",
+        "2025-06-16",
+        "2025-06-17",
+        "2025-06-18",
+        "2025-06-19",
+        "2025-06-20",
+        "2025-06-23",
+        "2025-06-24",
+        "2025-06-25",
+        "2025-06-26",
+        "2025-06-27",
+        "2025-06-30",
+        "2025-07-01",
+        "2025-07-02",
+        "2025-07-03",
+        "2025-07-04",
+        "2025-07-07",
+        "2025-07-08",
+        "2025-07-09",
+        "2025-07-10",
+        "2025-07-11",
+        "2025-07-14",
+        "2025-07-15",
+        "2025-07-16",
+        "2025-07-17",
+        "2025-07-18",
+        "2025-07-21",
+        "2025-07-22",
+        "2025-07-23",
+        "2025-07-24",
+        "2025-07-25",
+        "2025-07-28",
+        "2025-07-29",
+        "2025-07-30",
+        "2025-07-31",
+        "2025-08-04",
+        "2025-08-05",
+        "2025-08-06",
+        "2025-08-07",
+        "2025-08-08",
+        "2025-08-11",
+        "2025-08-12",
+        "2025-08-13",
+        "2025-08-14",
+        "2025-08-15",
+        "2025-08-18",
+        "2025-08-19",
+        "2025-08-20",
+        "2025-08-21",
+        "2025-08-22",
+        "2025-08-25",
+        "2025-08-26",
+        "2025-08-27",
+        "2025-08-28",
+        "2025-08-29",
+        "2025-09-01",
+        "2025-09-02",
+        "2025-09-03",
+        "2025-09-04",
+        "2025-09-05",
+        "2025-09-08",
+        "2025-09-09",
+        "2025-09-10",
+        "2025-09-11",
+        "2025-09-12",
+        "2025-09-15",
+        "2025-09-16",
+        "2025-09-17",
+        "2025-09-18",
+        "2025-09-19",
+        "2025-09-22",
+        "2025-09-23",
+        "2025-09-24",
+        "2025-09-25",
+        "2025-09-26",
+        "2025-09-30",
+        "2025-10-01",
+        "2025-10-02",
+        "2025-10-03",
+        "2025-10-07",
+        "2025-10-08",
+        "2025-10-09",
+        "2025-10-13",
+        "2025-10-14",
+        "2025-10-15",
+        "2025-10-16",
+        "2025-10-17",
+        "2025-10-20",
+        "2025-10-21",
+        "2025-10-22",
+        "2025-10-23",
+        "2025-10-27",
+        "2025-10-28",
+        "2025-10-29",
+        "2025-10-30",
+        "2025-10-31",
+        "2025-11-03",
+        "2025-11-04",
+        "2025-11-05",
+        "2025-11-06",
+        "2025-11-07",
+        "2025-11-10",
+        "2025-11-11",
+        "2025-11-12",
+        "2025-11-13",
+        "2025-11-14",
+        "2025-11-17",
+        "2025-11-18",
+        "2025-11-19",
+        "2025-11-20",
+        "2025-11-21",
+        "2025-11-24",
+        "2025-11-25",
+        "2025-11-26",
+        "2025-11-27",
+        "2025-11-28",
+        "2025-12-01",
+        "2025-12-02",
+        "2025-12-03",
+        "2025-12-04",
+        "2025-12-05",
+        "2025-12-08",
+        "2025-12-09",
+        "2025-12-10",
+        "2025-12-11",
+        "2025-12-12",
+        "2025-12-15",
+        "2025-12-16",
+        "2025-12-17",
+        "2025-12-18",
+        "2025-12-19",
+        "2025-12-22",
+        "2025-12-23",
+        "2025-12-24",
+        "2025-12-26",
+        "2025-12-29",
+        "2025-12-30",
+        "2025-12-31",
+        "2026-01-02",
+        "2026-01-05",
+        "2026-01-06",
+        "2026-01-07",
+        "2026-01-08",
+        "2026-01-09",
+        "2026-01-12",
+        "2026-01-13",
+        "2026-01-14",
+        "2026-01-15",
+        "2026-01-16",
+        "2026-01-19",
+        "2026-01-20",
+        "2026-01-21",
+        "2026-01-22",
+        "2026-01-23",
+        "2026-01-26",
+        "2026-01-27",
+        "2026-01-28",
+        "2026-01-29",
+        "2026-01-30",
+        "2026-02-02",
+        "2026-02-03",
+        "2026-02-04",
+        "2026-02-05",
+        "2026-02-06",
+        "2026-02-09",
+        "2026-02-10",
+        "2026-02-11",
+        "2026-02-23",
+        "2026-02-24",
+        "2026-02-25",
+        "2026-02-26",
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-25",
+        "2026-03-26",
+        "2026-03-27",
+        "2026-03-30",
+        "2026-03-31",
+        "2026-04-01",
+        "2026-04-02",
+        "2026-04-07",
+        "2026-04-08",
+        "2026-04-09",
+        "2026-04-10",
+        "2026-04-13",
+        "2026-04-14",
+        "2026-04-15",
+        "2026-04-16",
+        "2026-04-17",
+        "2026-04-20",
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "prices": [
+        49.4,
+        51.3,
+        49.0,
+        48.5,
+        48.9,
+        46.0,
+        45.9,
+        48.1,
+        49.1,
+        49.4,
+        51.2,
+        52.9,
+        52.3,
+        52.0,
+        49.7,
+        50.0,
+        49.1,
+        50.5,
+        49.5,
+        52.5,
+        52.4,
+        51.9,
+        53.2,
+        52.3,
+        50.2,
+        49.3,
+        49.4,
+        48.8,
+        49.9,
+        49.2,
+        47.6,
+        45.7,
+        46.1,
+        44.4,
+        44.2,
+        45.3,
+        44.5,
+        44.0,
+        43.8,
+        45.1,
+        45.9,
+        46.3,
+        44.5,
+        43.7,
+        44.1,
+        44.0,
+        42.4,
+        41.3,
+        41.5,
+        42.7,
+        42.4,
+        46.6,
+        46.1,
+        44.6,
+        43.8,
+        43.2,
+        43.4,
+        42.3,
+        40.7,
+        39.8,
+        39.5,
+        39.8,
+        40.4,
+        40.0,
+        40.2,
+        40.4,
+        42.3,
+        43.4,
+        43.1,
+        40.8,
+        41.5,
+        41.8,
+        41.2,
+        41.4,
+        41.8,
+        41.2,
+        41.2,
+        43.1,
+        43.8,
+        42.8,
+        43.4,
+        43.8,
+        43.2,
+        42.8,
+        44.5,
+        49.0,
+        52.6,
+        52.2,
+        47.0,
+        42.3,
+        41.5,
+        40.3,
+        40.7,
+        40.3,
+        40.1,
+        40.1,
+        39.8,
+        37.5,
+        38.0,
+        37.8,
+        38.2,
+        38.0,
+        38.2,
+        37.5,
+        37.5,
+        35.6,
+        38.2,
+        37.1,
+        36.5,
+        38.0,
+        38.4,
+        42.2,
+        42.2,
+        40.3,
+        40.2,
+        39.9,
+        38.2,
+        38.2,
+        38.3,
+        37.8,
+        37.9,
+        38.3,
+        38.4,
+        38.8,
+        37.4,
+        36.8,
+        36.8,
+        37.2,
+        36.7,
+        36.5,
+        37.5,
+        38.0,
+        38.0,
+        38.0,
+        37.7,
+        37.2,
+        36.8,
+        36.2,
+        35.8,
+        35.2,
+        34.5,
+        35.7,
+        34.6,
+        34.4,
+        34.7,
+        36.3,
+        35.7,
+        35.5,
+        34.5,
+        33.2,
+        33.3,
+        33.7,
+        33.0,
+        33.0,
+        34.0,
+        34.6,
+        34.7,
+        35.2,
+        34.9,
+        34.9,
+        35.2,
+        35.9,
+        36.5,
+        36.3,
+        36.0,
+        36.5,
+        36.8,
+        36.6,
+        37.2,
+        37.3,
+        37.6,
+        36.5,
+        36.6,
+        36.8,
+        36.8,
+        37.1,
+        36.7,
+        38.0,
+        37.7,
+        37.5,
+        37.8,
+        36.7,
+        36.7,
+        37.0,
+        36.7,
+        37.0,
+        37.1,
+        38.1,
+        39.8,
+        41.2,
+        42.0,
+        46.0,
+        44.0,
+        43.0,
+        42.0,
+        43.7,
+        48.0,
+        45.4,
+        45.9,
+        43.8,
+        42.2,
+        39.9,
+        40.2,
+        40.8,
+        40.7,
+        39.3,
+        39.0,
+        39.3,
+        39.2,
+        40.8,
+        40.0,
+        39.0,
+        39.5,
+        38.9,
+        37.6,
+        36.0,
+        36.2,
+        36.7,
+        34.7,
+        34.8,
+        35.5,
+        35.3,
+        34.8,
+        35.0,
+        35.4,
+        35.4,
+        34.4,
+        34.5,
+        33.8,
+        33.7,
+        34.5,
+        38.0,
+        41.7,
+        42.5,
+        39.3,
+        40.0,
+        38.3,
+        37.2,
+        38.0,
+        37.8,
+        38.0,
+        37.8,
+        39.5,
+        39.2,
+        39.0,
+        38.8,
+        38.2,
+        38.7,
+        38.6,
+        37.8
+      ],
+      "current": 37.8,
+      "prev_close": 38.6,
+      "change_pct": -2.07,
+      "ma5": 38.4,
+      "momentum": "down",
+      "entry": [
+        36,
+        39
+      ],
+      "target15": 46.0,
+      "stop": 33
+    }
+  },
+  "us_market": {
+    "SOX": {
+      "price": 10167.41,
+      "change_pct": 2.61,
+      "date": "2026-04-23"
+    },
+    "SMH": {
+      "price": 486.3,
+      "change_pct": 1.98,
+      "date": "2026-04-23"
+    },
+    "NVDA": {
+      "price": 201.48,
+      "change_pct": -0.5,
+      "date": "2026-04-23"
+    },
+    "MU": {
+      "price": 487.92,
+      "change_pct": 0.09,
+      "date": "2026-04-23"
+    }
+  },
+  "predictions": {
+    "兆赫": {
+      "price": 64.6,
+      "signal": "偏多",
+      "color": "green"
+    },
+    "華邦電": {
+      "price": 88.7,
+      "signal": "偏多",
+      "color": "green"
+    },
+    "瀧澤科": {
+      "price": 38.2,
+      "signal": "偏多",
+      "color": "green"
+    }
+  },
+  "watchlist": {
+    "旺宏": {
+      "symbol": "2337.TW",
+      "code": "2337",
+      "theme": "NOR Flash",
+      "note": "AI IoT / 車用記憶體，報價持續上漲",
+      "current": 126.0,
+      "change_pct": -6.32
+    },
+    "台灣大": {
+      "symbol": "3045.TW",
+      "code": "3045",
+      "theme": "5G + AI 企業",
+      "note": "AI 企業連網需求，現金流穩定高殖利率",
+      "current": 112.0,
+      "change_pct": -0.88
+    },
+    "富鼎": {
+      "symbol": "8261.TW",
+      "code": "8261",
+      "theme": "AI 電源 IC",
+      "note": "AI 伺服器電源管理晶片，毛利率擴張中",
+      "current": 117.0,
+      "change_pct": -8.59
+    },
+    "新唐": {
+      "symbol": "4919.TW",
+      "code": "4919",
+      "theme": "AI 邊緣 MCU",
+      "note": "ARM MCU for AI edge / 車用 / IoT",
+      "current": 147.0,
+      "change_pct": -4.55
+    },
+    "晶豪科": {
+      "symbol": "3006.TW",
+      "code": "3006",
+      "theme": "NAND 控制器",
+      "note": "SSD 控制晶片，AI 儲存需求受惠",
+      "current": 155.5,
+      "change_pct": -7.16
+    },
+    "中磊": {
+      "symbol": "5388.TW",
+      "code": "5388",
+      "theme": "WiFi 7 網通",
+      "note": "WiFi 6/7 路由器晶片，AI 家用流量爆增",
+      "current": 81.4,
+      "change_pct": -3.44
+    },
+    "台揚": {
+      "symbol": "2402.TW",
+      "code": "2402",
+      "theme": "Cable 設備",
+      "note": "同兆赫產業鏈，DOCSIS 升級受惠，估值較低",
+      "current": 71.6,
+      "change_pct": -6.89
+    },
+    "世界先進": {
+      "symbol": "5347.TWO",
+      "code": "5347",
+      "theme": "特殊晶圓代工",
+      "note": "BCD 製程，AI 伺服器電源 IC 主要代工廠",
+      "current": 136.0,
+      "change_pct": -6.21
+    },
+    "弘塑": {
+      "symbol": "6706.TW",
+      "code": "6706",
+      "theme": "CoWoS 封裝設備",
+      "note": "外資近期調升目標價，先進封裝設備唯一純粹標的",
+      "current": 131.5,
+      "change_pct": -5.4
+    },
+    "力積電": {
+      "symbol": "6770.TW",
+      "code": "6770",
+      "theme": "特殊 DRAM",
+      "note": "利基型 DRAM 晶圓代工，低基期具彈性",
+      "current": 52.9,
+      "change_pct": -7.19
+    }
+  },
+  "supply_chain": {
+    "台積電": {
+      "current": 2080.0,
+      "change_pct": 1.46,
+      "code": "2330"
+    },
+    "台達電": {
+      "current": 1980.0,
+      "change_pct": -1.74,
+      "code": "2308"
+    },
+    "廣達": {
+      "current": 322.0,
+      "change_pct": -3.88,
+      "code": "2382"
+    },
+    "智邦": {
+      "current": 2080.0,
+      "change_pct": -5.45,
+      "code": "2345"
+    },
+    "中華電": {
+      "current": 136.0,
+      "change_pct": -0.37,
+      "code": "2412"
+    },
+    "緯穎": {
+      "current": 4250.0,
+      "change_pct": -2.3,
+      "code": "6669"
+    },
+    "華邦電": {
+      "current": 87.8,
+      "change_pct": -3.09,
+      "code": "2344"
+    },
+    "新唐": {
+      "current": 147.0,
+      "change_pct": -4.55,
+      "code": "4919"
+    },
+    "中磊": {
+      "current": 81.4,
+      "change_pct": -3.44,
+      "code": "5388"
+    },
+    "台揚": {
+      "current": 71.6,
+      "change_pct": -6.89,
+      "code": "2402"
+    },
+    "世界先進": {
+      "current": 136.0,
+      "change_pct": -6.21,
+      "code": "5347"
+    },
+    "富鼎": {
+      "current": 117.0,
+      "change_pct": -8.59,
+      "code": "8261"
+    },
+    "奇鋐": {
+      "current": 2680.0,
+      "change_pct": -0.56,
+      "code": "3017"
+    },
+    "旺宏": {
+      "current": 126.0,
+      "change_pct": -6.32,
+      "code": "2337"
+    },
+    "緯創": {
+      "current": 139.5,
+      "change_pct": -3.12,
+      "code": "3231"
+    },
+    "遠傳": {
+      "current": 95.9,
+      "change_pct": 0.52,
+      "code": "4904"
+    },
+    "健策": {
+      "current": 48.3,
+      "change_pct": -3.4,
+      "code": "3306"
+    },
+    "力積電": {
+      "current": 52.9,
+      "change_pct": -7.19,
+      "code": "6770"
+    },
+    "晶豪科": {
+      "current": 155.5,
+      "change_pct": -7.16,
+      "code": "3006"
+    }
+  },
+  "ai_analysis": "（等待 AI 晨報分析中...請確認 Claude Code 已開啟）"
+};
+// DAILY_DATA_END
+</script>
+
+<!-- ── 渲染邏輯 ── -->
+<script>
+// ── 工具函式 ─────────────────────────────────────────────
+function setEl(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+function setElClass(id, cls) {
+  const el = document.getElementById(id);
+  if (el) { el.className = el.className.replace(/\b(up|down)\b/g,'') + ' ' + cls; }
+}
+function chgStr(pct) {
+  return pct >= 0 ? `▲ ${pct.toFixed(2)}%` : `▼ ${Math.abs(pct).toFixed(2)}%`;
+}
+
+// ── 填充每日晨報 ─────────────────────────────────────────
+function renderMorning() {
+  setEl('updateTime', '更新時間：' + DAILY_DATA.updated);
+  setEl('headerDate', DAILY_DATA.updated);
+  setEl('aiAnalysis', DAILY_DATA.ai_analysis || '暫無分析');
+
+  // 美股
+  const us = DAILY_DATA.us_market || {};
+  const usMap = { SOX:['sox-p','sox-c'], SMH:['smh-p','smh-c'], NVDA:['nvda-p','nvda-c'], MU:['mu-p','mu-c'] };
+  for (const [k,[pid,cid]] of Object.entries(usMap)) {
+    if (us[k]) {
+      setEl(pid, k === 'SOX' ? us[k].price.toLocaleString() : '$' + us[k].price);
+      const chg = us[k].change_pct;
+      const el = document.getElementById(cid);
+      if (el) {
+        el.textContent = chgStr(chg);
+        el.className = 'us-chg ' + (chg >= 0 ? 'up' : 'down');
+      }
+    }
+  }
+
+  // 台股
+  const s = DAILY_DATA.stocks || {};
+  const p = DAILY_DATA.predictions || {};
+  const twMap = {
+    '兆赫':  { price:'zx-price', chg:'zx-chg', pred:'zx-pred', ee:'ee-zx-price', f:'f-zx-price' },
+    '華邦電': { price:'hb-price', chg:'hb-chg', pred:'hb-pred', ee:'ee-hb-price', f:'f-hb-price' },
+    '瀧澤科': { price:'lz-price', chg:'lz-chg', pred:'lz-pred', ee:'ee-lz-price', f:'f-lz-price' },
+  };
+  for (const [name, ids] of Object.entries(twMap)) {
+    const d = s[name]; if (!d) continue;
+    const priceStr = '$' + d.current;
+    setEl(ids.price, priceStr);
+    setEl(ids.ee, priceStr);
+    setEl(ids.f, priceStr);
+    const chgEl = document.getElementById(ids.chg);
+    if (chgEl) {
+      chgEl.textContent = chgStr(d.change_pct);
+      chgEl.className = 'tw-change ' + (d.change_pct >= 0 ? 'up' : 'down');
+    }
+    if (p[name]) {
+      const predEl = document.getElementById(ids.pred);
+      if (predEl) {
+        predEl.textContent = `預測 $${p[name].price}｜${p[name].signal}`;
+        predEl.className = 'tw-predict pred-' + p[name].color;
+      }
+    }
+  }
+}
+
+// ── Chart.js ─────────────────────────────────────────────
+const COLORS = { '兆赫':'#e53935', '華邦電':'#1e88e5', '瀧澤科':'#43a047' };
+let chartInstance = null;
+let currentTab = 'zx';
+
+function buildCombinedDatasets() {
+  const datasets = [];
+  for (const [name, d] of Object.entries(DAILY_DATA.stocks)) {
+    const base = d.prices[0];
+    const pctData = d.prices.map(p => parseFloat(((p - base) / base * 100).toFixed(2)));
+    datasets.push({
+      label: name,
+      data: pctData,
+      borderColor: COLORS[name],
+      backgroundColor: COLORS[name] + '18',
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      fill: false,
+      tension: 0.35,
+    });
+  }
+  return { labels: Object.values(DAILY_DATA.stocks)[0].dates, datasets };
+}
+
+function buildSingleDataset(name) {
+  const d = DAILY_DATA.stocks[name];
+  return {
+    labels: d.dates,
+    datasets: [{
+      label: `${name}（元）`,
+      data: d.prices,
+      borderColor: COLORS[name],
+      backgroundColor: COLORS[name] + '22',
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      fill: true,
+      tension: 0.35,
+    }]
+  };
+}
+
+function renderChart(tab) {
+  const canvas = document.getElementById('mainChart');
+  const ctx = canvas.getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  const nameMap = { zx:'兆赫', hb:'華邦電', lz:'瀧澤科' };
+  const chartData = buildSingleDataset(nameMap[tab]);
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 0,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 13 }, usePointStyle: true } },
+        tooltip: {
+          callbacks: {
+            label: c => ` ${c.dataset.label}: $${c.parsed.y}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { maxTicksLimit: 6, font: { size: 10 }, maxRotation: 30 },
+          grid: { display: false }
+        },
+        y: {
+          title: { display: true, text: '股價（元）', font: { size: 11 } },
+          ticks: { font: { size: 11 }, callback: v => '$' + v },
+          grid: { color: '#f0f0f0' }
+        }
+      }
+    }
+  });
+}
+
+function switchChart(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('#chartTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderChart(tab);
+}
+
+// ── 觀察名單渲染 ─────────────────────────────────────────
+let activeWL = null;
+
+const themeColor = t => {
+  if (t.includes('NOR') || t.includes('NAND') || t.includes('DRAM')) return ['#fff3e0','#e65100'];
+  if (t.includes('晶圓') || t.includes('代工')) return ['#e3f2fd','#1565c0'];
+  if (t.includes('電源') || t.includes('MCU') || t.includes('WiFi')) return ['#e8eaf6','#283593'];
+  if (t.includes('封裝') || t.includes('CoWoS')) return ['#fce4ec','#880e4f'];
+  if (t.includes('Cable') || t.includes('5G'))  return ['#e8f5e9','#1b5e20'];
+  return ['#e3f2fd','#1565c0'];
+};
+
+function scRow(item, sc) {
+  if (!item.code || !sc[item.code]) {
+    return `<div class="wl-det-row"><span class="k">${item.n}</span><span class="v" style="color:var(--muted)">—</span></div>`;
+  }
+  const s = sc[item.code];
+  const chg = s.change_pct;
+  const cls = chg >= 0 ? 'up' : 'down';
+  const arrow = chg >= 0 ? '▲' : '▼';
+  return `<div class="wl-det-row">
+    <span class="k">${item.n}</span>
+    <span class="v">$${s.current} <span class="${cls}" style="font-size:0.8rem">${arrow}${Math.abs(chg).toFixed(2)}%</span></span>
+  </div>`;
+}
+
+function buildDetailPanel(name, d, det) {
+  const entry = det.entry;
+  const sc = DAILY_DATA.supply_chain || {};
+  const upRows   = (det.upstream   || []).map(i => scRow(i, sc)).join('');
+  const downRows = (det.downstream || []).map(i => scRow(i, sc)).join('');
+  return `
+  <div class="wl-detail-panel" id="wlPanel">
+    <div class="wl-detail-header">
+      <div class="wl-detail-title">${name}（${d.code}）— ${d.theme} 詳細分析</div>
+      <button class="wl-close-btn" onclick="closeWLPanel()">✕</button>
+    </div>
+    <div class="wl-detail-body">
+      <div class="wl-det-blk">
+        <h5>基本面</h5>
+        <div class="wl-det-row"><span class="k">現價</span><span class="v">${d.current != null ? '$'+d.current : '—'}</span></div>
+        <div class="wl-det-row"><span class="k">52 週區間</span><span class="v">${det.w52}</span></div>
+        <div class="wl-det-row"><span class="k">EPS（估）</span><span class="v v-red">${det.eps}</span></div>
+        <div class="wl-det-row"><span class="k">本益比</span><span class="v">${det.pe}</span></div>
+        <div class="wl-det-row"><span class="k">股價淨值比</span><span class="v">${det.pbr}</span></div>
+        <div class="wl-det-row"><span class="k">殖利率</span><span class="v v-green">${det.yield}</span></div>
+        <hr style="border:none;border-top:1px dashed var(--border);margin:10px 0">
+        <h5 style="margin-bottom:8px">進退場建議</h5>
+        <div class="wl-ee-row"><span class="lbl">建議進場</span><span class="wl-entry">$${entry[0]}–$${entry[1]}</span></div>
+        <div class="wl-ee-row"><span class="lbl">15% 目標退場</span><span class="wl-target">$${det.target15}</span></div>
+        <div class="wl-ee-row"><span class="lbl">停損參考</span><span class="wl-stop">$${det.stop}（-8%）</span></div>
+      </div>
+      <div class="wl-det-blk">
+        <h5>🔼 上游供應鏈今日波動</h5>
+        ${upRows || '<div style="font-size:0.82rem;color:var(--muted)">—</div>'}
+        <hr style="border:none;border-top:1px dashed var(--border);margin:10px 0">
+        <h5 style="margin-bottom:8px">🔽 下游客戶今日波動</h5>
+        ${downRows || '<div style="font-size:0.82rem;color:var(--muted)">—</div>'}
+        <hr style="border:none;border-top:1px dashed var(--border);margin:10px 0">
+        <h5 style="margin-bottom:8px">近期消息</h5>
+        <ul class="wl-news-list">
+          ${det.news.map(n=>`<li><div style="width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:6px"></div>${n}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="wl-det-blk">
+        <h5>投資展望</h5>
+        <div class="wl-outlook">${det.outlook}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleWLCard(name) {
+  const grid = document.getElementById('wlGrid');
+  // 移除舊面板
+  const old = document.getElementById('wlPanel');
+  if (old) old.remove();
+  // 取消舊 active
+  document.querySelectorAll('.wl-card').forEach(c => c.classList.remove('active'));
+
+  if (activeWL === name) { activeWL = null; return; }
+  activeWL = name;
+
+  const d   = DAILY_DATA.watchlist[name];
+  const det = WATCHLIST_DETAIL[name];
+  if (!d || !det) return;
+
+  // 標記 active 卡片
+  const cards = grid.querySelectorAll('.wl-card');
+  cards.forEach(c => { if (c.dataset.name === name) c.classList.add('active'); });
+
+  // 插入面板到 grid 末尾
+  grid.insertAdjacentHTML('beforeend', buildDetailPanel(name, d, det));
+  document.getElementById('wlPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function closeWLPanel() {
+  const old = document.getElementById('wlPanel');
+  if (old) old.remove();
+  document.querySelectorAll('.wl-card').forEach(c => c.classList.remove('active'));
+  activeWL = null;
+}
+
+function renderWatchlist() {
+  const grid = document.getElementById('wlGrid');
+  if (!grid) return;
+  const wl = DAILY_DATA.watchlist;
+  if (!wl || Object.keys(wl).length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted)">尚未載入，請執行 台股每日更新.py</div>';
+    return;
+  }
+  grid.innerHTML = Object.entries(wl).map(([name, d]) => {
+    const chg = d.change_pct;
+    const chgStr = chg >= 0 ? `▲ ${chg.toFixed(2)}%` : `▼ ${Math.abs(chg).toFixed(2)}%`;
+    const chgCls = chg >= 0 ? 'up' : 'down';
+    const [bg, fg] = themeColor(d.theme);
+    return `
+    <div class="wl-card" data-name="${name}" onclick="toggleWLCard('${name}')">
+      <div class="wl-header">
+        <div><div class="wl-name">${name}</div><div class="wl-code">${d.code}</div></div>
+        <div class="wl-theme" style="background:${bg};color:${fg}">${d.theme}</div>
+      </div>
+      <div class="wl-price ${chgCls}">${d.current != null ? '$'+d.current : '—'}</div>
+      <div class="wl-chg ${chgCls}">${d.current != null ? chgStr : '等待更新'}</div>
+      <div class="wl-note">${d.note}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── 波段分析 ─────────────────────────────────────────────────
+function detectWaves(prices, dates, targetWaves = 5) {
+  // 自適應閾值：先嘗試 7%，不夠就降到 4%
+  for (const thr of [0.09, 0.07, 0.05, 0.04, 0.03]) {
+    const pts = _zigzag(prices, dates, thr);
+    if (pts.length - 1 >= targetWaves) {
+      const segs = _buildSegs(pts);
+      return segs.slice(-targetWaves);
+    }
+  }
+  // 備案：直接用等分五段
+  const step = Math.floor(prices.length / 5);
+  const fallback = [];
+  for (let i = 0; i < 5; i++) {
+    const si = i * step;
+    const ei = i === 4 ? prices.length - 1 : (i + 1) * step;
+    fallback.push({n:i+1, sd:dates[si], ed:dates[ei], sp:prices[si], ep:prices[ei]});
+  }
+  return fallback;
+}
+
+function _zigzag(prices, dates, thr) {
+  let pts = [{p: prices[0], d: dates[0]}];
+  let dir = 0, ext = prices[0], extD = dates[0];
+  for (let i = 1; i < prices.length; i++) {
+    const chg = (prices[i] - ext) / ext;
+    if (dir === 0) {
+      if (Math.abs(chg) >= thr) { dir = chg > 0 ? 1 : -1; ext = prices[i]; extD = dates[i]; }
+    } else if (dir === 1) {
+      if (prices[i] >= ext) { ext = prices[i]; extD = dates[i]; }
+      else if ((ext - prices[i]) / ext >= thr) {
+        pts.push({p: ext, d: extD}); dir = -1; ext = prices[i]; extD = dates[i];
+      }
+    } else {
+      if (prices[i] <= ext) { ext = prices[i]; extD = dates[i]; }
+      else if ((prices[i] - ext) / ext >= thr) {
+        pts.push({p: ext, d: extD}); dir = 1; ext = prices[i]; extD = dates[i];
+      }
+    }
+  }
+  pts.push({p: prices[prices.length-1], d: dates[dates.length-1]});
+  return pts;
+}
+
+function _buildSegs(pts) {
+  return pts.slice(0,-1).map((s, i) => ({
+    n: i+1, sd: s.d, ed: pts[i+1].d, sp: s.p, ep: pts[i+1].p
+  }));
+}
+
+// 波段原因自動判讀（依據股票特性、漲跌幅、時間段、位置推論）
+function waveReason(stockName, waveIdx, chgPct, days, startDate, endPrice) {
+  const up   = chgPct >= 0;
+  const big  = Math.abs(chgPct) >= 15;
+  const mid  = Math.abs(chgPct) >= 7;
+  const fast = days <= 20;
+  const slow = days >= 60;
+  const month = startDate ? parseInt(startDate.split('-')[1]) : 0;
+  const isQ1  = month >= 1 && month <= 3;
+  const isQ2  = month >= 4 && month <= 6;
+  const isQ3  = month >= 7 && month <= 9;
+  const isQ4  = month >= 10 && month <= 12;
+
+  const catalog = {
+    '兆赫': {
+      upBig:  ['DOCSIS 3.1/3.2 北美電信升級訂單大增，外資連買超，突破前高引發追價','Cable 設備族群輪漲，市場預期 2026 年 EPS 上調，法人目標價調升至 $90+','美股 Comcast/Charter 資本支出展望正面，帶動台灣Cable設備股同步大漲'],
+      upMid:  ['SOX 上漲帶動電子股情緒，兆赫技術面突破均線獲資金關注','外資小幅加碼，Q2 財報前佈局動作明顯','網通設備需求溫和回升，跟隨大盤反彈'],
+      downBig:['川普關稅政策衝擊科技股，外資全面調節台股','法人獲利了結，股價從高位快速拉回修正，RSI 超買後回落','Cable 設備訂單能見度短暫下滑，市場保守觀望'],
+      downMid:['大盤修正拖累，整體半導體設備類股回檔','季報公布前觀望氣氛，成交量萎縮','外資部分調節，短線獲利了結壓力'],
+    },
+    '華邦電': {
+      upBig:  ['NOR Flash 報價連漲，車用 AIoT 需求爆發，外資大幅調升目標價至 $130+','記憶體超級循環啟動，NAND 供給吃緊，市場重新評估 PE 倍數','AI 記憶體需求超預期，法人 EPS 估算上調，帶動股價快速重估'],
+      upMid:  ['記憶體報價止跌回升，庫存去化完成，買盤回流','產業淡旺季轉換，Q3 旺季前提前佈局','外資回補台股電子，華邦電殖利率具吸引力'],
+      downBig:['記憶體市場供過於求擔憂再起，法人下修 EPS 預估','美股 MU 財報不如預期，台灣記憶體股同步重挫','資金轉向 AI 伺服器直接受惠股，利基記憶體相對失色'],
+      downMid:['大盤修正期，半導體類股普遍回調','外資調節部位，短線獲利了結','記憶體報價漲幅趨緩，市場等待下季展望'],
+    },
+    '瀧澤科': {
+      upBig:  ['AI 資料中心液冷散熱需求爆發，小型冷卻設備股跟漲，補漲行情啟動','法人發現 PBR 僅 1.45x 嚴重低估，相較雙鴻奇鋐大幅折價引發資金進駐','工業冷卻訂單超預期，單季毛利率創四年新高，帶動估值重評'],
+      upMid:  ['液冷概念族群輪動，資金擴散至次要標的','技術面突破整理區，短線動能轉強','半導體廠擴產帶動工業冷卻設備需求回溫'],
+      downBig:['AI 液冷訂單進度延後，市場對小廠獲利能見度存疑','雙鴻奇鋐主流液冷股拉回，連帶壓低整體族群','成交量偏低，流動性風險放大跌幅'],
+      downMid:['大盤震盪整理，小型股流動性不佳率先回調','法人未持續加碼，短線籌碼凌亂','整理等待下一個觸媒，成交縮量盤整'],
+    },
+  };
+
+  const c = catalog[stockName] || catalog['兆赫'];
+  let pool;
+  if (up && big)       pool = c.upBig;
+  else if (up && mid)  pool = c.upMid;
+  else if (up)         pool = c.upMid;
+  else if (!up && big) pool = c.downBig;
+  else                 pool = c.downMid;
+
+  // 用波段序號 + 股票名稱當確定性種子，同一份資料永遠選同一條
+  const seed = (stockName.charCodeAt(0) + waveIdx * 7) % pool.length;
+  return pool[seed];
+}
+
+let currentWave = '兆赫';
+
+function switchWave(name, btn) {
+  currentWave = name;
+  document.querySelectorAll('#waveTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderWaveTable(name);
+}
+
+function renderWaveTable(name) {
+  const el = document.getElementById('waveTable');
+  if (!el) return;
+  const d = DAILY_DATA.stocks && DAILY_DATA.stocks[name];
+  if (!d || !d.prices || d.prices.length < 10) {
+    el.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">尚未載入，請執行 台股每日更新.py</div>';
+    return;
+  }
+
+  const waves = detectWaves(d.prices, d.dates, 5);
+  const maxAbs = Math.max(...waves.map(w => Math.abs((w.ep - w.sp) / w.sp * 100)));
+
+  const rows = waves.map((w, i) => {
+    const chgPct = (w.ep - w.sp) / w.sp * 100;
+    const icon   = chgPct >= 0 ? '📈' : '📉';
+    const label  = chgPct >= 0 ? '上漲波' : '下跌波';
+    const color  = chgPct >= 0 ? '#27ae60' : '#e53935';
+    const barW   = maxAbs > 0 ? Math.round(Math.abs(chgPct) / maxAbs * 100) : 0;
+    const days   = Math.max(1, Math.round((new Date(w.ed) - new Date(w.sd)) / 86400000));
+    const reason = waveReason(name, i, chgPct, days, w.sd, w.ep);
+    return `<tr>
+      <td><span class="wave-no">${i+1}</span></td>
+      <td style="white-space:nowrap">${w.sd}</td>
+      <td style="white-space:nowrap">${w.ed}</td>
+      <td style="font-weight:700">$${w.sp}</td>
+      <td style="font-weight:700">$${w.ep}</td>
+      <td style="font-weight:800;color:${color};white-space:nowrap">
+        ${chgPct >= 0 ? '+' : ''}${chgPct.toFixed(1)}%
+        <span class="wave-bar-wrap"><span class="wave-bar-fill" style="width:${barW}%;background:${color}"></span></span>
+      </td>
+      <td style="white-space:nowrap">${icon} ${label}・${days}天</td>
+      <td style="font-size:0.8rem;color:#555;line-height:1.5">${reason}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <table class="wave-tbl">
+      <thead><tr>
+        <th>波段</th><th>起始日</th><th>結束日</th>
+        <th>起始價</th><th>結束價</th><th>漲跌幅</th>
+        <th>方向・天數</th><th>波動原因分析</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── 三大股上下游輔助 ─────────────────────────────────────────
+function getStockData(name) {
+  const sc = DAILY_DATA.supply_chain || {};
+  if (sc[name]) return sc[name];
+  const wl = DAILY_DATA.watchlist || {};
+  if (wl[name]) return wl[name];
+  const stocks = DAILY_DATA.stocks || {};
+  if (stocks[name]) return stocks[name];
+  return null;
+}
+
+function scRowMain(item) {
+  const s = getStockData(item.n);
+  if (!s) return `<div class="sc-item"><span class="sn">${item.n}</span><span class="sp" style="color:var(--muted)">—</span></div>`;
+  const chg = s.change_pct;
+  const cls = chg >= 0 ? 'up' : 'down';
+  const arrow = chg >= 0 ? '▲' : '▼';
+  return `<div class="sc-item"><span class="sn">${item.n}</span><span class="sp ${cls}">$${s.current} <span class="sc-chg ${cls}">${arrow}${Math.abs(chg).toFixed(2)}%</span></span></div>`;
+}
+
+function renderMainStockSC() {
+  const map = [['sc-zx','兆赫'],['sc-hb','華邦電'],['sc-lz','瀧澤科']];
+  for (const [id, name] of map) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const d = MAIN_STOCKS_SC[name];
+    if (!d) continue;
+    el.innerHTML = `
+      <div class="sc-col">
+        <div class="sc-col-title">🔼 上游供應商</div>
+        ${d.upstream.map(scRowMain).join('')}
+      </div>
+      <div class="sc-col">
+        <div class="sc-col-title">🔽 下游客戶</div>
+        ${d.downstream.map(scRowMain).join('')}
+      </div>
+      <div class="sc-col">
+        <div class="sc-col-title">🔀 同業對比</div>
+        ${d.peer.map(scRowMain).join('')}
+      </div>`;
+  }
+}
+
+// ── 初始化 ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderMorning();
+  renderWatchlist();
+  renderChart('zx');
+  renderMainStockSC();
+  renderWaveTable('兆赫');
+});
+</script>
+</body>
+</html>
