@@ -348,7 +348,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
     <button class="tab-btn" onclick="switchChart('lz', this)">瀧澤科 6609</button>
   </div>
   <div class="chart-canvas-wrap">
-    <canvas id="mainChart"></canvas>
+    <canvas id="mainChart" width="600" height="260"></canvas>
   </div>
 </div>
 
@@ -665,7 +665,7 @@ const MAIN_STOCKS_SC = {
 <script>
 // DAILY_DATA_START
 const DAILY_DATA = {
-  "updated": "2026-04-24 01:39",
+  "updated": "2026-04-24 01:45",
   "stocks": {
     "兆赫": {
       "symbol": "2485.TW",
@@ -2227,41 +2227,41 @@ const DAILY_DATA = {
   },
   "us_market": {
     "SOX": {
-      "price": 10045.94,
-      "change_pct": 1.38,
+      "price": 9950.24,
+      "change_pct": 0.41,
       "date": "2026-04-23"
     },
     "SMH": {
-      "price": 480.76,
-      "change_pct": 0.82,
+      "price": 476.55,
+      "change_pct": -0.06,
       "date": "2026-04-23"
     },
     "NVDA": {
-      "price": 199.31,
-      "change_pct": -1.58,
+      "price": 197.89,
+      "change_pct": -2.28,
       "date": "2026-04-23"
     },
     "MU": {
-      "price": 482.2,
-      "change_pct": -1.08,
+      "price": 475.1,
+      "change_pct": -2.54,
       "date": "2026-04-23"
     }
   },
   "predictions": {
     "兆赫": {
-      "price": 71.3,
-      "signal": "偏多",
-      "color": "green"
+      "price": 70.9,
+      "signal": "盤整",
+      "color": "orange"
     },
     "華邦電": {
-      "price": 91.6,
+      "price": 91.1,
       "signal": "偏多",
       "color": "green"
     },
     "瀧澤科": {
-      "price": 38.7,
-      "signal": "偏多",
-      "color": "green"
+      "price": 38.5,
+      "signal": "盤整",
+      "color": "orange"
     }
   },
   "watchlist": {
@@ -2540,11 +2540,15 @@ function buildCombinedDatasets() {
 
 function buildSingleDataset(name) {
   const d = DAILY_DATA.stocks[name];
+  // 只取最近 125 筆（約 6 個月）顯示於圖表
+  const slice = 125;
+  const labels = d.dates.slice(-slice);
+  const prices = d.prices.slice(-slice);
   return {
-    labels: d.dates,
+    labels,
     datasets: [{
       label: `${name}（元）`,
-      data: d.prices,
+      data: prices,
       borderColor: COLORS[name],
       backgroundColor: COLORS[name] + '22',
       borderWidth: 2.5,
