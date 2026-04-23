@@ -22,8 +22,11 @@ jobs:
         run: pip install yfinance -q
 
       - name: 執行每日更新
-        env:                                                                                     EMAIL_PASSWORD: ${
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}                                                    run: python update.p
+        env:
+          EMAIL_PASSWORD: "${{ secrets.EMAIL_PASSWORD }}"
+          EMAIL_TO: "${{ secrets.EMAIL_TO }}"
+       
+        run: python update.p
                                                                                              - name: 推送更新後的報
         run: |                                                                                   git config user.na
           git config user.email "github-actions[bot]@users.noreply.github.com"                   git add index.html
