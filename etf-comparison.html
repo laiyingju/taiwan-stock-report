@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF 橫向對比計算表</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; color: #1e293b; padding: 20px 12px 60px; }
+
+.page-header {
+  max-width: 1100px; margin: 0 auto 20px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  border-radius: 18px; padding: 24px 28px; color: #fff;
+}
+.page-header h1 { font-size: 1.4rem; font-weight: 800; }
+.page-header p  { font-size: 0.8rem; color: #7dd3fc; margin-top: 4px; }
+
+.card { max-width: 1100px; margin: 0 auto 18px; background: #fff; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden; }
+.card-header { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px; }
+.card-header h2 { font-size: 0.92rem; font-weight: 700; }
+.card-header .sub { font-size: 0.74rem; color: #94a3b8; margin-left: auto; }
+.card-body { padding: 18px 20px; }
+
+/* 參數設定 */
+.param-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.param-box {
+  display: flex; align-items: center; gap: 8px;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 8px 14px; flex: 1; min-width: 160px;
+}
+.param-box label { font-size: 0.75rem; color: #64748b; white-space: nowrap; }
+.param-box input {
+  border: none; background: transparent; font-size: 1rem; font-weight: 700;
+  color: #0ea5e9; width: 100%; outline: none; text-align: right;
+}
+.param-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 8px; }
+
+/* ETF 設定卡 */
+.etf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+.etf-setup-card {
+  border: 2px solid var(--clr); border-radius: 12px; padding: 12px 14px;
+  position: relative;
+}
+.etf-setup-card .es-name { font-size: 0.9rem; font-weight: 800; color: var(--clr); margin-bottom: 8px; }
+.etf-setup-card .es-type { font-size: 0.68rem; background: var(--clr); color: #fff; border-radius: 4px; padding: 2px 6px; vertical-align: middle; margin-left: 4px; }
+.etf-setup-card .es-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.etf-setup-card .es-lbl { font-size: 0.72rem; color: #64748b; white-space: nowrap; width: 90px; }
+.etf-setup-card .es-inp {
+  border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px;
+  font-size: 0.85rem; font-weight: 700; text-align: right; outline: none;
+  background: #fafafa; flex: 1;
+}
+.etf-setup-card .es-inp:focus { border-color: var(--clr); background: #fff; }
+
+/* 比較大表 */
+.compare-wrap { overflow-x: auto; }
+.compare-table { border-collapse: collapse; font-size: 0.82rem; min-width: 900px; width: 100%; }
+.compare-table th {
+  padding: 9px 10px; background: #f8fafc; color: #64748b;
+  font-weight: 600; font-size: 0.72rem; text-align: center;
+  border-bottom: 2px solid #e2e8f0; white-space: nowrap;
+}
+.compare-table th.th-name { text-align: left; min-width: 140px; }
+.compare-table td {
+  padding: 10px 10px; border-bottom: 1px solid #f1f5f9;
+  text-align: center; white-space: nowrap;
+}
+.compare-table td.td-name { text-align: left; }
+.compare-table .name-main { font-weight: 800; font-size: 0.88rem; }
+.compare-table .name-code { font-size: 0.7rem; color: #94a3b8; }
+.compare-table .big   { font-weight: 800; font-size: 0.92rem; }
+.compare-table .muted { color: #94a3b8; font-size: 0.8rem; }
+.compare-table tr:hover td { background: #f8fafc; }
+.up   { color: #10b981; }
+.down { color: #ef4444; }
+.neu  { color: #64748b; }
+.highlight-row td { background: #f0f9ff !important; }
+
+/* 年化比較表 */
+.year-table { border-collapse: collapse; font-size: 0.82rem; width: 100%; }
+.year-table th {
+  padding: 9px 10px; background: #f8fafc; color: #64748b;
+  font-weight: 600; font-size: 0.72rem; text-align: center; border-bottom: 2px solid #e2e8f0;
+}
+.year-table th:first-child { text-align: left; }
+.year-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+.year-table td:first-child { text-align: left; font-weight: 700; }
+.year-table tr:last-child td { border-bottom: none; }
+.bar { display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; margin-left: 4px; }
+
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.74rem; color: #64748b; margin-top: 10px; }
+.legend span { display: flex; align-items: center; gap: 4px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+.footer { max-width: 1100px; margin: 0 auto; text-align: center; font-size: 0.72rem; color: #94a3b8; padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>ETF 橫向對比計算表</h1>
+  <p>同一金額投入 × 比較張數 × 大盤情境 × 3年 / 5年報酬</p>
+</div>
+
+<!-- ① 投入設定 -->
+<div class="card">
+  <div class="card-header"><span>⚙️</span><h2>投入金額 & 市場參數</h2></div>
+  <div class="card-body">
+    <div class="param-row">
+      <div class="param-box"><label>投入金額（$）</label><input type="number" id="budget" value="1000000" step="50000" oninput="calc()"></div>
+      <div class="param-box"><label>加權指數（點）</label><input type="number" id="taiexNow" value="38819" step="1" oninput="calc()"></div>
+    </div>
+    <div class="param-hint">* 投入金額為同一本金，自動計算各 ETF 可買幾張（整張），零頭退回。</div>
+  </div>
+</div>
+
+<!-- ② ETF 資料設定（可編輯） -->
+<div class="card">
+  <div class="card-header"><span>✏️</span><h2>ETF 資料（可手動更新現價 & 配息）</h2>
+    <span class="sub">代號 ? 表示待確認，可填入正確代號</span>
+  </div>
+  <div class="card-body">
+    <div class="etf-grid" id="etfSetupGrid"></div>
+  </div>
+</div>
+
+<!-- ③ 同一金額比較表 -->
+<div class="card">
+  <div class="card-header"><span>📊</span><h2>同一金額投入比較</h2>
+    <span class="sub">現況 + 配息收入 + 大盤目標</span>
+  </div>
+  <div class="card-body">
+    <div class="compare-wrap">
+      <table class="compare-table" id="mainTable">
+        <thead>
+          <tr>
+            <th class="th-name">ETF</th>
+            <th>現價（$）</th>
+            <th>可買張數</th>
+            <th>實際投入（$）</th>
+            <th>年配息收入（$）</th>
+            <th>▶ 大盤 44K</th>
+            <th>▶ 大盤 45K</th>
+            <th>▶ 大盤 55K</th>
+          </tr>
+        </thead>
+        <tbody id="mainBody"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:#6366f1"></span>累積型（自動複利）</span>
+      <span><span class="dot" style="background:#10b981"></span>配息型</span>
+      <span><span class="dot" style="background:#f59e0b"></span>主動型</span>
+      <span><span class="dot" style="background:#ec4899"></span>高股息型</span>
+    </div>
+    <div style="font-size:0.73rem;color:#94a3b8;margin-top:8px">
+      ※ 大盤情境以 TAIEX 比例等比推算（主動型、高股息型實際可能有差異）｜高股息 ETF 價格可能低於指數漲幅但配息更多
+    </div>
+  </div>
+</div>
+
+<!-- ④ 3年 / 5年報酬對比 -->
+<div class="card">
+  <div class="card-header"><span>📈</span><h2>3 年 / 5 年 報酬對比</h2>
+    <span class="sub">年化報酬率情境（股價漲幅 + 配息合計）</span>
+  </div>
+  <div class="card-body">
+    <div style="margin-bottom:14px;display:flex;gap:12px;flex-wrap:wrap">
+      <div class="param-box" style="max-width:200px"><label>年化報酬假設（%）</label><input type="number" id="annRate" value="20" step="1" oninput="calc()"></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="year-table" id="yearTable">
+        <thead>
+          <tr>
+            <th style="text-align:left;min-width:150px">ETF</th>
+            <th>現價</th>
+            <th>3年後股價估（$）</th>
+            <th>3年配息收入（$）</th>
+            <th>3年合計獲利（$）</th>
+            <th>3年報酬率</th>
+            <th>5年後股價估（$）</th>
+            <th>5年配息收入（$）</th>
+            <th>5年合計獲利（$）</th>
+            <th>5年報酬率</th>
+          </tr>
+        </thead>
+        <tbody id="yearBody"></tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:#94a3b8;margin-top:8px">
+      ※ 股價：用年化報酬（純價格）複利計算。配息：年配息 × 年數（不再投入複利）。兩者加總為總合計獲利。<br>
+      ※ 累積型 ETF（009816）配息欄 = 0（配息已含在股價成長內）。
+    </div>
+  </div>
+</div>
+
+<div class="footer">ETF 橫向對比計算表 ｜ 本表為估算參考，不構成投資建議</div>
+
+<script>
+// ── ETF 資料 ─────────────────────────────────────────────
+let etfs = [
+  { id:0, name:'群益科技創新',   code:'00992A', price:16.93, divY:0.03, type:'active',   clr:'#f59e0b' },
+  { id:1, name:'元大台灣50',     code:'0050',   price:89.95, divY:0.035,type:'dist',     clr:'#7c3aed' },
+  { id:2, name:'統一台股增長',   code:'00981A', price:27.80, divY:0.03, type:'active',   clr:'#f59e0b' },
+  { id:3, name:'國泰動能高息',   code:'00400A', price:12.74, divY:0.06, type:'active',   clr:'#f59e0b' },
+  { id:4, name:'元大高股息',     code:'0056',   price:40.95, divY:0.07, type:'high-div', clr:'#ec4899' },
+  { id:5, name:'國泰永續高股息', code:'00878',  price:25.00, divY:0.06, type:'high-div', clr:'#ec4899' },
+  { id:6, name:'群益精選高息',   code:'00919',  price:23.50, divY:0.065,type:'high-div', clr:'#ec4899' },
+  { id:7, name:'凱基TOP50',      code:'009816', price:12.83, divY:0,    type:'accum',    clr:'#0ea5e9' },
+  { id:8, name:'統一台股升級50', code:'00403A', price:10.00, divY:0.08, type:'active',   clr:'#f59e0b' },
+];
+
+function typeLabel(t) {
+  return { active:'主動', dist:'配息', 'high-div':'高股息', accum:'累積' }[t] || t;
+}
+
+// ── 渲染 ETF 設定卡 ────────────────────────────────────────
+function renderSetup() {
+  const grid = document.getElementById('etfSetupGrid');
+  grid.innerHTML = etfs.map(e => `
+    <div class="etf-setup-card" style="--clr:${e.clr}">
+      <div class="es-name">${e.name}<span class="es-type">${typeLabel(e.type)}</span></div>
+      <div class="es-row">
+        <span class="es-lbl">代號</span>
+        <input class="es-inp" value="${e.code}" oninput="updateEtf(${e.id},'code',this.value)">
+      </div>
+      <div class="es-row">
+        <span class="es-lbl">現價（$）</span>
+        <input class="es-inp" type="number" step="0.05" value="${e.price}" oninput="updateEtf(${e.id},'price',+this.value)">
+      </div>
+      <div class="es-row">
+        <span class="es-lbl">年配息率（%）</span>
+        <input class="es-inp" type="number" step="0.5" value="${(e.divY*100).toFixed(1)}"
+          oninput="updateEtf(${e.id},'divY',+this.value/100)"
+          ${e.type==='accum'?'disabled style="color:#aaa"':''}>
+      </div>
+      ${e.type==='accum'?'<div style="font-size:0.68rem;color:#0ea5e9;margin-top:4px">累積型：配息自動含入 NAV，不另外計算</div>':''}
+    </div>
+  `).join('');
+}
+
+function updateEtf(id, field, val) {
+  const e = etfs.find(e => e.id === id);
+  if (e) { e[field] = val; calc(); }
+}
+
+// ── 主計算 ─────────────────────────────────────────────────
+function calc() {
+  const budget   = +document.getElementById('budget').value   || 1000000;
+  const taiexNow = +document.getElementById('taiexNow').value || 38819;
+  const annRate  = +document.getElementById('annRate').value  / 100 || 0.12;
+
+  const targets = [44000, 45000, 55000];
+
+  // ── 主比較表 ──
+  const mainBody = document.getElementById('mainBody');
+  mainBody.innerHTML = etfs.map(e => {
+    const lots      = Math.floor(budget / (e.price * 1000));
+    const invested  = lots * e.price * 1000;
+    const divIncome = invested * e.divY;   // 年配息 (股價×殖利率)
+
+    const cells = targets.map(t => {
+      const etfT   = e.price * (t / taiexNow);
+      const valT   = lots * 1000 * etfT;
+      const pnl    = valT - invested;
+      const cls    = pnl >= 0 ? 'up' : 'down';
+      return `<td class="big ${cls}">${invested>0?(pnl>=0?'+':'')+' $'+Math.round(pnl).toLocaleString():'—'}</td>`;
+    }).join('');
+
+    const isHighlighted = (e.code === '009816' || e.code === '0050' || e.code === '00403A') ? 'highlight-row' : '';
+
+    return `<tr class="${isHighlighted}">
+      <td class="td-name">
+        <div class="name-main" style="color:${e.clr}">${e.name}</div>
+        <div class="name-code">${e.code} ｜ $${e.price.toFixed(2)}</div>
+      </td>
+      <td class="big">$${e.price.toFixed(2)}</td>
+      <td class="big">${lots} 張</td>
+      <td>$${Math.round(invested).toLocaleString()}</td>
+      <td class="up">${e.type!=='accum' ? '+$'+Math.round(divIncome).toLocaleString() : '<span class="neu">含入股價</span>'}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  // ── 年化比較表 ──
+  const yearBody = document.getElementById('yearBody');
+  yearBody.innerHTML = etfs.map(e => {
+    const lots     = Math.floor(budget / (e.price * 1000));
+    const invested = lots * e.price * 1000;
+    const annDiv   = e.type === 'accum' ? 0 : invested * e.divY;
+
+    const rows3 = calcYearRow(e, lots, invested, annRate, annDiv, 3);
+    const rows5 = calcYearRow(e, lots, invested, annRate, annDiv, 5);
+
+    const cls3 = rows3.totalPnl >= 0 ? 'up' : 'down';
+    const cls5 = rows5.totalPnl >= 0 ? 'up' : 'down';
+    const barW3 = invested > 0 ? Math.min(80, Math.abs(rows3.pct) * 0.4) : 0;
+    const barW5 = invested > 0 ? Math.min(80, Math.abs(rows5.pct) * 0.35) : 0;
+
+    return `<tr>
+      <td style="color:${e.clr};font-weight:800">${e.name}<br><span style="font-size:0.7rem;color:#94a3b8">${e.code}</span></td>
+      <td>$${e.price.toFixed(2)}</td>
+      <td class="big ${rows3.totalPnl>=0?'up':'down'}">$${rows3.futurePrice.toFixed(2)}</td>
+      <td class="up">${e.type!=='accum'?'+$'+Math.round(rows3.divTotal).toLocaleString():'—'}</td>
+      <td class="big ${cls3}">${invested>0?(rows3.totalPnl>=0?'+':'')+' $'+Math.round(rows3.totalPnl).toLocaleString():'—'}</td>
+      <td class="${cls3}">${invested>0?(rows3.pct>=0?'+':'')+rows3.pct.toFixed(1)+'%':'—'}<span class="bar" style="width:${barW3}px;background:${rows3.totalPnl>=0?'#10b981':'#ef4444'}"></span></td>
+      <td class="big ${rows5.totalPnl>=0?'up':'down'}">$${rows5.futurePrice.toFixed(2)}</td>
+      <td class="up">${e.type!=='accum'?'+$'+Math.round(rows5.divTotal).toLocaleString():'—'}</td>
+      <td class="big ${cls5}">${invested>0?(rows5.totalPnl>=0?'+':'')+' $'+Math.round(rows5.totalPnl).toLocaleString():'—'}</td>
+      <td class="${cls5}">${invested>0?(rows5.pct>=0?'+':'')+rows5.pct.toFixed(1)+'%':'—'}<span class="bar" style="width:${barW5}px;background:${rows5.totalPnl>=0?'#10b981':'#ef4444'}"></span></td>
+    </tr>`;
+  }).join('');
+}
+
+function calcYearRow(e, lots, invested, rate, annDiv, years) {
+  // 累積型：全部報酬滾入NAV，完整複利
+  // 配息型：總報酬 - 配息殖利率 = 純股價漲幅，另加現金配息（不複利）
+  const priceRate   = e.type === 'accum' ? rate : Math.max(0, rate - e.divY);
+  const futurePrice = e.price * Math.pow(1 + priceRate, years);
+  const futureVal   = lots * 1000 * futurePrice;
+  const pricePnl    = futureVal - invested;
+  const divTotal    = e.type === 'accum' ? 0 : annDiv * years;
+  const totalPnl    = pricePnl + divTotal;
+  const pct         = invested > 0 ? totalPnl / invested * 100 : 0;
+  return { futurePrice, pricePnl, divTotal, totalPnl, pct };
+}
+
+// 初始化
+renderSetup();
+calc();
+</script>
+</body>
+</html>
