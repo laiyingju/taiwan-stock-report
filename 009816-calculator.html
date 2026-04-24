@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>009816 凱基 TOP50 ETF 投資計算表</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4f8;
+    color: #1e293b;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* ── 頁首 ── */
+  .page-header {
+    max-width: 960px;
+    margin: 0 auto 28px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    border-radius: 20px;
+    padding: 28px 32px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .page-header .badge {
+    background: rgba(14,165,233,0.25);
+    border: 1px solid rgba(14,165,233,0.5);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    color: #7dd3fc;
+    white-space: nowrap;
+  }
+  .page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+  .page-header p  { font-size: 0.82rem; color: #94a3b8; margin-top: 4px; }
+
+  /* ── 卡片 ── */
+  .card {
+    max-width: 960px;
+    margin: 0 auto 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-header .icon { font-size: 1.1rem; }
+  .card-header h2 { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+  .card-header .sub { font-size: 0.76rem; color: #94a3b8; margin-left: auto; }
+  .card-body { padding: 20px 24px; }
+
+  /* ── 市場參數 ── */
+  .params-grid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+  .param-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 14px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .param-item label { font-size: 0.76rem; color: #64748b; white-space: nowrap; }
+  .param-item input {
+    border: none;
+    background: transparent;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0ea5e9;
+    width: 100%;
+    outline: none;
+    text-align: right;
+  }
+  .param-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 8px; }
+
+  /* ── 分批買入表 ── */
+  .batch-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  .batch-table th {
+    padding: 8px 10px;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.74rem;
+    text-align: center;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .batch-table th:first-child { text-align: left; }
+  .batch-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+  }
+  .batch-table td:first-child { text-align: left; }
+  .batch-table input[type="text"],
+  .batch-table input[type="number"] {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 0.87rem;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fafafa;
+  }
+  .batch-table input:focus { border-color: #0ea5e9; background: #fff; }
+  .batch-table .td-label input { text-align: left; }
+  .batch-table .computed { font-weight: 700; }
+  .batch-table .up { color: #10b981; }
+  .batch-table .down { color: #ef4444; }
+  .batch-table .total-row td {
+    background: #f0f9ff;
+    font-weight: 800;
+    border-top: 2px solid #bae6fd;
+    border-bottom: none;
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.83rem;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn-add  { background: #ecfdf5; color: #059669; }
+  .btn-add:hover  { background: #d1fae5; }
+  .btn-del  { background: #fef2f2; color: #ef4444; border: none; cursor: pointer; padding: 4px 8px; border-radius: 5px; font-size: 0.8rem; }
+  .btn-del:hover  { background: #fee2e2; }
+  .btn-calc { background: #0ea5e9; color: #fff; }
+  .btn-calc:hover { background: #0284c7; }
+
+  /* ── 持倉摘要 ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .summary-tile {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .summary-tile .lbl { font-size: 0.72rem; color: #94a3b8; margin-bottom: 6px; }
+  .summary-tile .val { font-size: 1.3rem; font-weight: 800; color: #1e293b; }
+  .summary-tile .sub { font-size: 0.72rem; color: #94a3b8; margin-top: 4px; }
+  .summary-tile.profit .val { color: #10b981; }
+  .summary-tile.loss   .val { color: #ef4444; }
+  .summary-tile.blue   .val { color: #0ea5e9; }
+
+  /* ── 複利試算表 ── */
+  .result-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  .result-table th {
+    padding: 10px 12px;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.74rem;
+    text-align: center;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .result-table th:first-child { text-align: left; }
+  .result-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+  }
+  .result-table td:first-child { text-align: left; }
+  .result-table tr:last-child td { border-bottom: none; }
+  .result-table .row-label { font-weight: 700; font-size: 0.88rem; }
+  .result-table .sub-note  { font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 2px; }
+  .result-table .big       { font-size: 1.05rem; font-weight: 800; }
+  .result-table .up        { color: #10b981; }
+  .result-table .down      { color: #ef4444; }
+  .result-table .bar-cell  { text-align: left; }
+  .bar { display: inline-block; height: 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+
+  /* 大盤情境 */
+  .taiex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .taiex-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .taiex-card.now { border-color: #bae6fd; background: #f0f9ff; }
+  .taiex-card .t-lbl { font-size: 0.72rem; color: #94a3b8; margin-bottom: 6px; }
+  .taiex-card .t-taiex { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px; }
+  .taiex-card .t-etf { font-size: 1.15rem; font-weight: 800; }
+  .taiex-card .t-pnl { font-size: 0.85rem; font-weight: 700; margin-top: 6px; }
+  .taiex-card .t-pct { font-size: 0.78rem; margin-top: 2px; }
+  .up { color: #10b981; }
+  .down { color: #ef4444; }
+
+  /* footer */
+  .footer { max-width: 960px; margin: 0 auto; text-align: center; font-size: 0.72rem; color: #94a3b8; padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- 頁首 -->
+<div class="page-header">
+  <div>
+    <h1>009816 凱基台灣 TOP50 ETF</h1>
+    <p>投資獲利計算表 ｜ 分批買入 × 複利再投入 × 情境試算</p>
+  </div>
+  <div class="badge">累積型・自動含息再投入</div>
+</div>
+
+<!-- ① 市場參數 -->
+<div class="card">
+  <div class="card-header">
+    <span class="icon">📡</span>
+    <h2>市場參數（可手動更新）</h2>
+    <span class="sub">每日開盤前更新即可</span>
+  </div>
+  <div class="card-body">
+    <div class="params-grid">
+      <div class="param-item">
+        <label>ETF 現價（$）</label>
+        <input type="number" id="etfNow" value="12.83" step="0.01" oninput="calc()">
+      </div>
+      <div class="param-item">
+        <label>加權指數（點）</label>
+        <input type="number" id="taiexNow" value="38819" step="1" oninput="calc()">
+      </div>
+    </div>
+    <div class="param-hint">* ETF現價來源：台灣證交所，每個交易日 9:00–13:30 更新</div>
+  </div>
+</div>
+
+<!-- ② 分批買入輸入 -->
+<div class="card">
+  <div class="card-header">
+    <span class="icon">📋</span>
+    <h2>分批買入紀錄</h2>
+    <span class="sub">可新增多筆，自動計算加權成本</span>
+  </div>
+  <div class="card-body">
+    <div style="overflow-x:auto">
+      <table class="batch-table">
+        <thead>
+          <tr>
+            <th style="width:120px;text-align:left">備註（選填）</th>
+            <th style="width:100px">買入價（$）</th>
+            <th style="width:80px">張數</th>
+            <th style="width:110px">投入成本（$）</th>
+            <th style="width:110px">目前市值（$）</th>
+            <th style="width:110px">獲利（$）</th>
+            <th style="width:80px">報酬率</th>
+            <th style="width:48px"></th>
+          </tr>
+        </thead>
+        <tbody id="batchBody">
+          <!-- rows injected by JS -->
+        </tbody>
+        <tfoot>
+          <tr class="total-row" id="totalRow">
+            <td>合計</td>
+            <td id="t-avg">—</td>
+            <td id="t-lots">—</td>
+            <td id="t-cost">—</td>
+            <td id="t-val">—</td>
+            <td id="t-pnl">—</td>
+            <td id="t-pct">—</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+      <button class="btn btn-add" onclick="addRow()">＋ 新增一筆買入</button>
+      <span style="font-size:0.76rem;color:#94a3b8">每張 = 1,000 股</span>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 持倉摘要 -->
+<div class="card">
+  <div class="card-header">
+    <span class="icon">💼</span>
+    <h2>目前持倉摘要</h2>
+  </div>
+  <div class="card-body">
+    <div class="summary-grid">
+      <div class="summary-tile">
+        <div class="lbl">總持股</div>
+        <div class="val" id="s-lots">—</div>
+        <div class="sub">張</div>
+      </div>
+      <div class="summary-tile">
+        <div class="lbl">加權平均成本</div>
+        <div class="val blue" id="s-avg">—</div>
+        <div class="sub">元/股</div>
+      </div>
+      <div class="summary-tile">
+        <div class="lbl">總投入</div>
+        <div class="val" id="s-cost">—</div>
+        <div class="sub">元</div>
+      </div>
+      <div class="summary-tile">
+        <div class="lbl">目前市值</div>
+        <div class="val" id="s-val">—</div>
+        <div class="sub">元</div>
+      </div>
+      <div class="summary-tile profit" id="s-tile">
+        <div class="lbl">未實現獲利</div>
+        <div class="val" id="s-pnl">—</div>
+        <div class="sub" id="s-pct">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 3年複利再投入試算 -->
+<div class="card">
+  <div class="card-header">
+    <span class="icon">📈</span>
+    <h2>3 年複利再投入試算</h2>
+    <span class="sub">從今天 ETF 現價起算，累積型自動含息再投入</span>
+  </div>
+  <div class="card-body">
+    <div style="overflow-x:auto">
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;width:160px">情境</th>
+            <th>3年後 ETF（$）</th>
+            <th>總市值（$）</th>
+            <th>從成本計獲利（$）</th>
+            <th>總報酬率</th>
+            <th class="bar-cell" style="text-align:left;width:120px">視覺</th>
+          </tr>
+        </thead>
+        <tbody id="compoundBody">
+          <!-- injected -->
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;font-size:0.75rem;color:#94a3b8">
+      ※ 公式：3年後ETF = ETF現價 × (1 + 年化報酬)³　｜　獲利 = 總持股 × 3年後ETF − 總成本
+    </div>
+  </div>
+</div>
+
+<!-- ⑤ 大盤情境對照 -->
+<div class="card">
+  <div class="card-header">
+    <span class="icon">🎯</span>
+    <h2>大盤目標情境對照</h2>
+    <span class="sub">ETF 與大盤等比例估算（台積電 42.55% 權重）</span>
+  </div>
+  <div class="card-body">
+    <div class="taiex-grid" id="taiexGrid">
+      <!-- injected -->
+    </div>
+    <div style="margin-top:12px;font-size:0.75rem;color:#94a3b8">
+      ※ 公式：情境ETF = ETF現價 × (目標大盤 ÷ 現在大盤)　｜　台積電衝$3,000 ≈ 大盤 44,059–47,941 點
+    </div>
+  </div>
+</div>
+
+<!-- 自訂情境 -->
+<div class="card">
+  <div class="card-header">
+    <span class="icon">🔧</span>
+    <h2>自訂情境試算</h2>
+  </div>
+  <div class="card-body">
+    <div class="params-grid" style="margin-bottom:16px">
+      <div class="param-item">
+        <label>目標大盤（點）</label>
+        <input type="number" id="customTaiex" value="55000" step="100" oninput="calcCustom()">
+      </div>
+      <div class="param-item">
+        <label>自訂年化報酬（%）</label>
+        <input type="number" id="customRate" value="20" step="0.5" oninput="calcCustom()">
+      </div>
+      <div class="param-item">
+        <label>試算年數</label>
+        <input type="number" id="customYears" value="3" step="1" min="1" max="10" oninput="calcCustom()">
+      </div>
+    </div>
+    <div id="customResult" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px"></div>
+  </div>
+</div>
+
+<div class="footer">
+  009816 凱基台灣 TOP50 ETF 投資計算表 ｜ 本表僅供參考，投資請自行判斷風險
+</div>
+
+<script>
+// ── 預設資料 ────────────────────────────────────────────
+const DEFAULT_ROWS = [
+  { label: '第一批', price: 10, lots: 70 },
+];
+
+const COMPOUND_SCENARIOS = [
+  { name: '保守 8%',  rate: 0.08,  note: '大盤緩漲，含配息 2.5%' },
+  { name: '穩健 12%', rate: 0.12,  note: '台股年均水準' },
+  { name: '樂觀 18%', rate: 0.18,  note: 'AI 牛市近兩年平均' },
+  { name: '強勁 25%', rate: 0.25,  note: '今年上半年節奏持續' },
+];
+
+const TAIEX_SCENARIOS = [
+  { label: '最低點',        taiex: 31000, note: '修正低點估算' },
+  { label: '目前',          taiex: null,  note: '今天',          now: true },
+  { label: '台積電 $3,000', taiex: 44059, note: '台積電單獨拉升估' },
+  { label: '大盤 45,000',   taiex: 45000, note: '樂觀目標' },
+  { label: '大盤 55,000',   taiex: 55000, note: '3年樂觀估' },
+];
+
+// ── 狀態 ──────────────────────────────────────────────
+let rows = DEFAULT_ROWS.map((r, i) => ({ ...r, id: i }));
+let nextId = DEFAULT_ROWS.length;
+
+function fmt(n) { return Math.abs(n) >= 10000 ? n.toLocaleString('zh-TW', {maximumFractionDigits: 0}) : n.toFixed(2); }
+function fmtM(n) {
+  const abs = Math.abs(n);
+  const sign = n < 0 ? '-' : '+';
+  if (abs >= 1e6) return sign + (abs/1e6).toFixed(2) + 'M';
+  if (abs >= 1e4) return sign + Math.round(abs).toLocaleString();
+  return sign + abs.toFixed(0);
+}
+
+// ── 渲染批次輸入列 ─────────────────────────────────────
+function renderRows() {
+  const body = document.getElementById('batchBody');
+  body.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + r.id;
+    tr.innerHTML = `
+      <td class="td-label"><input type="text" placeholder="第一批..." value="${r.label}" oninput="updateRow(${r.id},'label',this.value)"></td>
+      <td><input type="number" step="0.01" min="0" value="${r.price}" oninput="updateRow(${r.id},'price',+this.value)"></td>
+      <td><input type="number" step="1"    min="0" value="${r.lots}"  oninput="updateRow(${r.id},'lots', +this.value)"></td>
+      <td class="computed" id="c-cost-${r.id}">—</td>
+      <td class="computed" id="c-val-${r.id}">—</td>
+      <td class="computed up" id="c-pnl-${r.id}">—</td>
+      <td class="computed" id="c-pct-${r.id}">—</td>
+      <td><button class="btn-del" onclick="delRow(${r.id})">✕</button></td>
+    `;
+    body.appendChild(tr);
+  });
+  calc();
+}
+
+function addRow() {
+  rows.push({ id: nextId++, label: '', price: 0, lots: 0 });
+  renderRows();
+}
+
+function delRow(id) {
+  rows = rows.filter(r => r.id !== id);
+  renderRows();
+}
+
+function updateRow(id, field, val) {
+  const r = rows.find(r => r.id === id);
+  if (r) { r[field] = val; calc(); }
+}
+
+// ── 主計算 ────────────────────────────────────────────
+function calc() {
+  const etfNow   = +document.getElementById('etfNow').value   || 12.83;
+  const taiexNow = +document.getElementById('taiexNow').value || 38819;
+
+  let totalCost = 0, totalShares = 0;
+
+  rows.forEach(r => {
+    const shares = r.lots * 1000;
+    const cost   = shares * r.price;
+    const val    = shares * etfNow;
+    const pnl    = val - cost;
+    const pct    = r.price > 0 ? pnl / cost * 100 : 0;
+    totalCost  += cost;
+    totalShares += shares;
+
+    const pnlCls = pnl >= 0 ? 'up' : 'down';
+    const pnlSign = pnl >= 0 ? '+' : '';
+    const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+    set('c-cost-'+r.id, '$' + Math.round(cost).toLocaleString());
+    set('c-val-'+r.id,  '$' + Math.round(val).toLocaleString());
+    set('c-pnl-'+r.id,  `<span class="${pnlCls}">${pnlSign}$${Math.round(pnl).toLocaleString()}</span>`);
+    set('c-pct-'+r.id,  `<span class="${pnlCls}">${pnlSign}${pct.toFixed(1)}%</span>`);
+  });
+
+  const totalVal  = totalShares * etfNow;
+  const totalPnl  = totalVal - totalCost;
+  const totalPct  = totalCost > 0 ? totalPnl / totalCost * 100 : 0;
+  const avgCost   = totalShares > 0 ? totalCost / totalShares : 0;
+  const totalLots = totalShares / 1000;
+
+  const pnlCls  = totalPnl >= 0 ? 'up' : 'down';
+  const pnlSign = totalPnl >= 0 ? '+' : '';
+
+  // 合計列
+  document.getElementById('t-avg').textContent   = avgCost > 0 ? '$' + avgCost.toFixed(2) : '—';
+  document.getElementById('t-lots').textContent  = totalLots > 0 ? totalLots + ' 張' : '—';
+  document.getElementById('t-cost').textContent  = totalCost > 0 ? '$' + Math.round(totalCost).toLocaleString() : '—';
+  document.getElementById('t-val').textContent   = totalVal > 0 ? '$' + Math.round(totalVal).toLocaleString() : '—';
+  document.getElementById('t-pnl').innerHTML     = totalCost > 0 ? `<span class="${pnlCls}">${pnlSign}$${Math.round(totalPnl).toLocaleString()}</span>` : '—';
+  document.getElementById('t-pct').innerHTML     = totalCost > 0 ? `<span class="${pnlCls}">${pnlSign}${totalPct.toFixed(1)}%</span>` : '—';
+
+  // 摘要
+  document.getElementById('s-lots').textContent  = totalLots > 0 ? totalLots : '—';
+  document.getElementById('s-avg').textContent   = avgCost > 0 ? '$' + avgCost.toFixed(2) : '—';
+  document.getElementById('s-cost').textContent  = totalCost > 0 ? '$' + Math.round(totalCost).toLocaleString() : '—';
+  document.getElementById('s-val').textContent   = totalVal  > 0 ? '$' + Math.round(totalVal).toLocaleString() : '—';
+  document.getElementById('s-pnl').textContent   = totalCost > 0 ? `${pnlSign}$${Math.round(totalPnl).toLocaleString()}` : '—';
+  document.getElementById('s-pct').textContent   = totalCost > 0 ? `${pnlSign}${totalPct.toFixed(1)}% 報酬率` : '—';
+  const tile = document.getElementById('s-tile');
+  tile.className = 'summary-tile ' + (totalPnl >= 0 ? 'profit' : 'loss');
+
+  // ── 複利試算 ───────────────────────────────────────
+  const maxRate = COMPOUND_SCENARIOS[COMPOUND_SCENARIOS.length-1].rate;
+  const compBody = document.getElementById('compoundBody');
+  compBody.innerHTML = COMPOUND_SCENARIOS.map(s => {
+    const etf3y = etfNow * Math.pow(1 + s.rate, 3);
+    const val3y = totalShares * etf3y;
+    const pnl3y = val3y - totalCost;
+    const pct3y = totalCost > 0 ? pnl3y / totalCost * 100 : 0;
+    const cls   = pnl3y >= 0 ? 'up' : 'down';
+    const barW  = totalCost > 0 ? Math.min(100, Math.abs(pct3y) / (maxRate * 3 * 100) * 90 + 10) : 0;
+    return `<tr>
+      <td class="row-label">${s.name}<span class="sub-note">${s.note}</span></td>
+      <td class="big ${cls}">$${etf3y.toFixed(2)}</td>
+      <td class="big">$${totalCost > 0 ? Math.round(val3y).toLocaleString() : '—'}</td>
+      <td class="big ${cls}">${totalCost > 0 ? (pnl3y>=0?'+':'')+' $' + Math.round(pnl3y).toLocaleString() : '—'}</td>
+      <td class="big ${cls}">${totalCost > 0 ? (pct3y>=0?'+':'')+pct3y.toFixed(1)+'%' : '—'}</td>
+      <td class="bar-cell"><span class="bar" style="width:${barW}px;background:${pnl3y>=0?'#10b981':'#ef4444'}"></span></td>
+    </tr>`;
+  }).join('');
+
+  // ── 大盤情境 ───────────────────────────────────────
+  const grid = document.getElementById('taiexGrid');
+  grid.innerHTML = TAIEX_SCENARIOS.map(s => {
+    const tgt = s.now ? taiexNow : s.taiex;
+    const etfT = etfNow * (tgt / taiexNow);
+    const valT = totalShares * etfT;
+    const pnlT = valT - totalCost;
+    const pctT = totalCost > 0 ? pnlT / totalCost * 100 : 0;
+    const cls   = pnlT >= 0 ? 'up' : 'down';
+    const isNow = s.now;
+    return `<div class="taiex-card ${isNow ? 'now' : ''}">
+      <div class="t-lbl">${s.label}${s.note ? '<br><span style="font-size:0.68rem">'+s.note+'</span>' : ''}</div>
+      <div class="t-taiex">${tgt.toLocaleString()} 點</div>
+      <div class="t-etf ${isNow ? '' : cls}">ETF $${etfT.toFixed(2)}</div>
+      ${totalCost > 0 ? `
+      <div class="t-pnl ${cls}">${pnlT>=0?'+':''}$${Math.round(pnlT).toLocaleString()}</div>
+      <div class="t-pct ${cls}">${pctT>=0?'+':''}${pctT.toFixed(1)}%</div>
+      ` : ''}
+    </div>`;
+  }).join('');
+
+  calcCustom();
+}
+
+// ── 自訂情境 ─────────────────────────────────────────
+function calcCustom() {
+  const etfNow    = +document.getElementById('etfNow').value    || 12.83;
+  const taiexNow  = +document.getElementById('taiexNow').value  || 38819;
+  const custTaiex = +document.getElementById('customTaiex').value || 55000;
+  const custRate  = +document.getElementById('customRate').value / 100 || 0.20;
+  const custYears = +document.getElementById('customYears').value || 3;
+
+  const totalShares = rows.reduce((s, r) => s + r.lots * 1000, 0);
+  const totalCost   = rows.reduce((s, r) => s + r.lots * 1000 * r.price, 0);
+
+  const etfTaiex = etfNow * (custTaiex / taiexNow);
+  const etf3y    = etfNow * Math.pow(1 + custRate, custYears);
+
+  const valT = totalShares * etfTaiex;
+  const valY = totalShares * etf3y;
+  const pnlT = valT - totalCost;
+  const pnlY = valY - totalCost;
+  const pctT = totalCost > 0 ? pnlT / totalCost * 100 : 0;
+  const pctY = totalCost > 0 ? pnlY / totalCost * 100 : 0;
+
+  const clsT = pnlT >= 0 ? 'up' : 'down';
+  const clsY = pnlY >= 0 ? 'up' : 'down';
+
+  document.getElementById('customResult').innerHTML = `
+    <div class="taiex-card">
+      <div class="t-lbl">大盤到 ${custTaiex.toLocaleString()} 點</div>
+      <div class="t-taiex">ETF 估</div>
+      <div class="t-etf ${clsT}">$${etfTaiex.toFixed(2)}</div>
+      ${totalCost > 0 ? `<div class="t-pnl ${clsT}">${pnlT>=0?'+':''}$${Math.round(pnlT).toLocaleString()}</div>
+      <div class="t-pct ${clsT}">${pctT>=0?'+':''}${pctT.toFixed(1)}%</div>` : ''}
+    </div>
+    <div class="taiex-card">
+      <div class="t-lbl">${custYears} 年複利 ${(custRate*100).toFixed(1)}%/年</div>
+      <div class="t-taiex">ETF 估</div>
+      <div class="t-etf ${clsY}">$${etf3y.toFixed(2)}</div>
+      ${totalCost > 0 ? `<div class="t-pnl ${clsY}">${pnlY>=0?'+':''}$${Math.round(pnlY).toLocaleString()}</div>
+      <div class="t-pct ${clsY}">${pctY>=0?'+':''}${pctY.toFixed(1)}%</div>` : ''}
+    </div>
+  `;
+}
+
+// 初始化
+renderRows();
+</script>
+</body>
+</html>
