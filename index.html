@@ -719,6 +719,14 @@ const WATCHLIST_DETAIL = {
     outlook:'玻璃纖維布台灣最大廠，供應電路板（覆銅板）與複合材料。5G 基站與電動車電池需求帶動高階玻纖布訂單，2026 年報價趨穩回升。殖利率 4%+ 為防禦性支撐，適合中長線持有。',
     news:['5G 基站覆銅板玻纖用量年增 30%+，富喬為主要供應商','電動車電池隔板玻纖滲透率提升，帶動高階品出貨','2026 年報價較去年同期上漲 8–12%，毛利率持續改善']
   },
+  'TOP50 ETF': {
+    w52:'$10.5–$14.2', pe:'—', eps:'—', yield:'約 3.5%', pbr:'—',
+    entry:[11.5,12.5], target15:14.0, stop:11.0,
+    upstream:  [{n:'台積電（40%+）',code:'台積電'},{n:'鴻海',code:''},{n:'聯發科',code:''},{n:'富邦金',code:''}],
+    downstream:[{n:'整體大盤連動',code:''},{n:'法人指數型操作',code:''}],
+    outlook:'追蹤台灣前 50 大市值公司，成分股含台積電、鴻海、聯發科等龍頭。台積電佔比約 40%+，走勢與大盤高度相關。適合看多台股整體但不想選股的布局，定期定額資金持續流入。',
+    news:['台積電 CoWoS 擴產帶動成分股集體上調','法人每月定期定額 ETF 資金流入穩定','2026 年台股大盤目標 24000 點，TOP50 直接受惠']
+  },
 };
 
 // ── 三大股上下游定義 ──────────────────────────────────────────
@@ -750,7 +758,7 @@ const MAIN_STOCKS_SC = {
 <script>
 // DAILY_DATA_START
 const DAILY_DATA = {
-  "updated": "2026-04-24 12:17",
+  "updated": "2026-04-24 12:23",
   "stocks": {
     "兆赫": {
       "symbol": "2485.TW",
@@ -1257,11 +1265,11 @@ const DAILY_DATA = {
         72.3,
         71.0,
         63.9,
-        60.3
+        60.5
       ],
-      "current": 60.3,
+      "current": 60.5,
       "prev_close": 63.9,
-      "change_pct": -5.63,
+      "change_pct": -5.32,
       "ma5": 67.7,
       "momentum": "down",
       "entry": [
@@ -1776,12 +1784,12 @@ const DAILY_DATA = {
         91.1,
         90.6,
         87.8,
-        86.6
+        86.5
       ],
-      "current": 86.6,
+      "current": 86.5,
       "prev_close": 87.8,
-      "change_pct": -1.37,
-      "ma5": 88.4,
+      "change_pct": -1.48,
+      "ma5": 88.3,
       "momentum": "down",
       "entry": [
         82,
@@ -2814,12 +2822,12 @@ const DAILY_DATA = {
         119.0,
         114.5,
         108.0,
-        108.0
+        108.5
       ],
-      "current": 108.0,
+      "current": 108.5,
       "prev_close": 108.0,
-      "change_pct": 0.0,
-      "ma5": 113.5,
+      "change_pct": 0.46,
+      "ma5": 113.6,
       "momentum": "down",
       "entry": [
         100,
@@ -2853,12 +2861,12 @@ const DAILY_DATA = {
   },
   "predictions": {
     "兆赫": {
-      "price": 60.6,
+      "price": 60.8,
       "signal": "偏多",
       "color": "green"
     },
     "華邦電": {
-      "price": 87.1,
+      "price": 87.0,
       "signal": "偏多",
       "color": "green"
     },
@@ -2868,7 +2876,7 @@ const DAILY_DATA = {
       "color": "green"
     },
     "富喬": {
-      "price": 108.6,
+      "price": 109.1,
       "signal": "偏多",
       "color": "green"
     }
@@ -2879,32 +2887,32 @@ const DAILY_DATA = {
       "code": "2337",
       "theme": "NOR Flash",
       "note": "AI IoT / 車用記憶體，報價持續上漲",
-      "current": 130.5,
-      "change_pct": 3.57
+      "current": 131.5,
+      "change_pct": 4.37
     },
     "台灣大": {
       "symbol": "3045.TW",
       "code": "3045",
       "theme": "5G + AI 企業",
       "note": "AI 企業連網需求，現金流穩定高殖利率",
-      "current": 111.5,
-      "change_pct": -0.45
+      "current": 113.0,
+      "change_pct": 0.89
     },
     "富鼎": {
       "symbol": "8261.TW",
       "code": "8261",
       "theme": "AI 電源 IC",
       "note": "AI 伺服器電源管理晶片，毛利率擴張中",
-      "current": 118.0,
-      "change_pct": 0.85
+      "current": 117.5,
+      "change_pct": 0.43
     },
     "新唐": {
       "symbol": "4919.TW",
       "code": "4919",
       "theme": "AI 邊緣 MCU",
       "note": "ARM MCU for AI edge / 車用 / IoT",
-      "current": 143.0,
-      "change_pct": -2.72
+      "current": 144.0,
+      "change_pct": -2.04
     },
     "晶豪科": {
       "symbol": "3006.TW",
@@ -2919,32 +2927,32 @@ const DAILY_DATA = {
       "code": "5388",
       "theme": "WiFi 7 網通",
       "note": "WiFi 6/7 路由器晶片，AI 家用流量爆增",
-      "current": 79.4,
-      "change_pct": -2.46
+      "current": 79.3,
+      "change_pct": -2.58
     },
     "台揚": {
       "symbol": "2402.TW",
       "code": "2402",
       "theme": "Cable 設備",
       "note": "同兆赫產業鏈，DOCSIS 升級受惠，估值較低",
-      "current": 70.5,
-      "change_pct": -1.54
+      "current": 70.1,
+      "change_pct": -2.09
     },
     "世界先進": {
       "symbol": "5347.TWO",
       "code": "5347",
       "theme": "特殊晶圓代工",
       "note": "BCD 製程，AI 伺服器電源 IC 主要代工廠",
-      "current": 141.5,
-      "change_pct": 4.04
+      "current": 141.0,
+      "change_pct": 3.68
     },
     "弘塑": {
       "symbol": "6706.TW",
       "code": "6706",
       "theme": "CoWoS 封裝設備",
       "note": "外資近期調升目標價，先進封裝設備唯一純粹標的",
-      "current": 125.0,
-      "change_pct": -4.94
+      "current": 124.5,
+      "change_pct": -5.32
     },
     "力積電": {
       "symbol": "6770.TW",
@@ -2953,22 +2961,30 @@ const DAILY_DATA = {
       "note": "利基型 DRAM 晶圓代工，低基期具彈性",
       "current": 52.3,
       "change_pct": -1.13
+    },
+    "TOP50 ETF": {
+      "symbol": "009816.TW",
+      "code": "009816",
+      "theme": "ETF",
+      "note": "凱基台灣 TOP 50，追蹤台灣前 50 大市值股",
+      "current": 12.7,
+      "change_pct": 2.42
     }
   },
   "supply_chain": {
     "台積電": {
-      "current": 2165.0,
-      "change_pct": 4.09,
+      "current": 2160.0,
+      "change_pct": 3.85,
       "code": "2330"
     },
     "環球晶": {
-      "current": 582.0,
-      "change_pct": 1.75,
+      "current": 583.0,
+      "change_pct": 1.92,
       "code": "6488"
     },
     "台達電": {
-      "current": 2035.0,
-      "change_pct": 2.78,
+      "current": 2030.0,
+      "change_pct": 2.53,
       "code": "2308"
     },
     "廣達": {
@@ -2977,53 +2993,53 @@ const DAILY_DATA = {
       "code": "2382"
     },
     "智邦": {
-      "current": 2115.0,
-      "change_pct": 1.68,
+      "current": 2100.0,
+      "change_pct": 0.96,
       "code": "2345"
     },
     "中華電": {
-      "current": 135.5,
-      "change_pct": -0.37,
+      "current": 135.0,
+      "change_pct": -0.74,
       "code": "2412"
     },
     "緯穎": {
-      "current": 4465.0,
-      "change_pct": 5.06,
+      "current": 4480.0,
+      "change_pct": 5.41,
       "code": "6669"
     },
     "威剛": {
-      "current": 397.0,
-      "change_pct": -0.13,
+      "current": 398.0,
+      "change_pct": 0.13,
       "code": "3260"
     },
     "華邦電": {
-      "current": 86.6,
-      "change_pct": -1.37,
+      "current": 86.5,
+      "change_pct": -1.48,
       "code": "2344"
     },
     "新唐": {
-      "current": 143.0,
-      "change_pct": -2.72,
+      "current": 144.0,
+      "change_pct": -2.04,
       "code": "4919"
     },
     "中磊": {
-      "current": 79.4,
-      "change_pct": -2.46,
+      "current": 79.3,
+      "change_pct": -2.58,
       "code": "5388"
     },
     "台揚": {
-      "current": 70.5,
-      "change_pct": -1.54,
+      "current": 70.1,
+      "change_pct": -2.09,
       "code": "2402"
     },
     "世界先進": {
-      "current": 141.5,
-      "change_pct": 4.04,
+      "current": 141.0,
+      "change_pct": 3.68,
       "code": "5347"
     },
     "富鼎": {
-      "current": 118.0,
-      "change_pct": 0.85,
+      "current": 117.5,
+      "change_pct": 0.43,
       "code": "8261"
     },
     "雙鴻": {
@@ -3037,8 +3053,8 @@ const DAILY_DATA = {
       "code": "3017"
     },
     "旺宏": {
-      "current": 130.5,
-      "change_pct": 3.57,
+      "current": 131.5,
+      "change_pct": 4.37,
       "code": "2337"
     },
     "緯創": {
@@ -3047,13 +3063,13 @@ const DAILY_DATA = {
       "code": "3231"
     },
     "遠傳": {
-      "current": 95.3,
-      "change_pct": -0.63,
+      "current": 95.2,
+      "change_pct": -0.73,
       "code": "4904"
     },
     "健策": {
-      "current": 47.6,
-      "change_pct": -1.45,
+      "current": 47.3,
+      "change_pct": -2.07,
       "code": "3306"
     },
     "力積電": {
