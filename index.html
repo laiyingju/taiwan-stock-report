@@ -3093,7 +3093,8 @@ const DAILY_DATA = {
           "price": 2110.0,
           "pct": 1.44,
           "base_price": 1865.0,
-          "season_pct": 13.14
+          "div": 6.0,
+          "season_pct": 13.46
         },
         {
           "code": "2308",
@@ -3269,7 +3270,7 @@ const DAILY_DATA = {
       ],
       "base_date": "2026-03-04",
       "base_price": 10.6,
-      "weighted_season_pct": 21.05
+      "weighted_season_pct": 21.21
     }
   },
   "ai_analysis": "（等待 AI 晨報分析中...請確認 Claude Code 已開啟）"
@@ -3485,6 +3486,7 @@ function buildDetailPanel(name, d, det) {
         const sArr  = c.season_pct > 0 ? '▲' : c.season_pct < 0 ? '▼' : '—';
         const sBar  = c.season_pct != null ? Math.min(80, Math.abs(c.season_pct) * 0.8) : 0;
         const sCol  = c.season_pct >= 0 ? '#43a047' : '#e53935';
+        const divNote = (c.div && c.div > 0) ? `<span style="font-size:0.62rem;color:#f57c00;margin-left:3px">+$${c.div}息</span>` : '';
         return `<tr style="border-bottom:1px solid #f0f0f0">
           <td style="padding:7px 8px;font-weight:700;color:#333">${c.name}</td>
           <td style="padding:7px 4px;font-size:0.76rem;color:var(--muted)">${c.code}</td>
@@ -3496,6 +3498,7 @@ function buildDetailPanel(name, d, det) {
           <td class="${sCls}" style="padding:7px 4px;font-weight:800;white-space:nowrap">
             ${c.season_pct != null ? sArr+' '+Math.abs(c.season_pct).toFixed(1)+'%' : '—'}
             ${c.season_pct != null ? `<span style="display:inline-block;width:${sBar}px;height:5px;border-radius:2px;background:${sCol};margin-left:3px;vertical-align:middle"></span>` : ''}
+            ${divNote}
           </td>
         </tr>`;
       }).join('');
@@ -3510,7 +3513,7 @@ function buildDetailPanel(name, d, det) {
     return `
   <div class="wl-detail-panel" id="wlPanel" style="grid-column:1/-1">
     <div class="wl-detail-header">
-      <div class="wl-detail-title">${name}（${d.code}）— 成份股分析 ＆ 季報酬</div>
+      <div class="wl-detail-title">${name}（${d.code}）— 成份股分析 ＆ 含息報酬</div>
       <button class="wl-close-btn" onclick="closeWLPanel()">✕</button>
     </div>
     <div style="padding:16px">
@@ -3521,7 +3524,7 @@ function buildDetailPanel(name, d, det) {
           <div style="font-size:0.74rem;color:#aaa;margin-top:6px">基準 $${baseEtf} → 今 $${etfNow}</div>
         </div>
         <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:12px;padding:14px 20px;flex:1;min-width:160px">
-          <div style="font-size:0.76rem;color:#888;margin-bottom:6px">成份股加權估算季報酬</div>
+          <div style="font-size:0.76rem;color:#888;margin-bottom:6px">成份股加權含息估算</div>
           ${wBadge}
           <div style="font-size:0.74rem;color:#aaa;margin-top:6px">前 20 大持股加權平均</div>
         </div>
@@ -3534,7 +3537,7 @@ function buildDetailPanel(name, d, det) {
             <th style="padding:8px;text-align:left">權重</th>
             <th style="padding:8px;text-align:left">現價</th>
             <th style="padding:8px;text-align:left">今日漲跌</th>
-            <th style="padding:8px;text-align:left">季報酬（${baseDate}起）↓</th>
+            <th style="padding:8px;text-align:left">含息報酬（${baseDate}起）↓</th>
           </tr></thead>
           <tbody>${compRows || '<tr><td colspan="6" style="padding:16px;text-align:center;color:var(--muted)">載入中...</td></tr>'}</tbody>
         </table>
