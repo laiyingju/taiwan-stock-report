@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>00403A 統一台股升級50 投資計算表</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4f8; color: #1e293b;
+    min-height: 100vh; padding: 24px 16px 60px;
+  }
+  .page-header {
+    max-width: 960px; margin: 0 auto 28px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2c1a4a 50%, #0f3057 100%);
+    border-radius: 20px; padding: 28px 32px; color: #fff;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+  .page-header p  { font-size: 0.82rem; color: #c4b5fd; margin-top: 4px; }
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .badge {
+    border-radius: 8px; padding: 5px 12px; font-size: 0.76rem; font-weight: 600;
+  }
+  .badge-new    { background: rgba(251,191,36,0.2);  border: 1px solid rgba(251,191,36,0.5);  color: #fde68a; }
+  .badge-active { background: rgba(236,72,153,0.2);  border: 1px solid rgba(236,72,153,0.5);  color: #fbcfe8; }
+  .badge-div    { background: rgba(52,211,153,0.2);  border: 1px solid rgba(52,211,153,0.5);  color: #a7f3d0; }
+  .header-info { text-align: right; }
+  .header-info .h-lbl { font-size: 0.72rem; color: #c4b5fd; }
+  .header-info .h-val { font-size: 1.4rem; font-weight: 900; color: #fde68a; }
+  .header-info .h-sub { font-size: 0.72rem; color: #a5b4fc; margin-top: 2px; }
+
+  .notice {
+    max-width: 960px; margin: 0 auto 20px;
+    background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 14px 18px;
+    font-size: 0.82rem; color: #92400e; line-height: 1.7;
+  }
+  .notice strong { color: #b45309; }
+
+  .card { max-width: 960px; margin: 0 auto 20px; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+  .card-header { padding: 16px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; }
+  .card-header h2 { font-size: 0.95rem; font-weight: 700; }
+  .card-header .sub { font-size: 0.76rem; color: #94a3b8; margin-left: auto; }
+  .card-body { padding: 20px 24px; }
+
+  .params-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .param-item {
+    display: flex; align-items: center; gap: 8px;
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 8px 14px; flex: 1; min-width: 180px;
+  }
+  .param-item label { font-size: 0.76rem; color: #64748b; white-space: nowrap; }
+  .param-item input {
+    border: none; background: transparent; font-size: 0.95rem;
+    font-weight: 700; color: #7c3aed; width: 100%; outline: none; text-align: right;
+  }
+  .param-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 8px; }
+
+  .batch-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  .batch-table th {
+    padding: 8px 10px; background: #faf5ff; color: #6d28d9;
+    font-weight: 600; font-size: 0.74rem; text-align: center; border-bottom: 2px solid #e9d5ff;
+  }
+  .batch-table th:first-child { text-align: left; }
+  .batch-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+  .batch-table td:first-child { text-align: left; }
+  .batch-table input[type="text"], .batch-table input[type="number"] {
+    width: 100%; border: 1px solid #e2e8f0; border-radius: 6px;
+    padding: 6px 8px; font-size: 0.87rem; text-align: center; outline: none; background: #fafafa;
+  }
+  .batch-table input:focus { border-color: #7c3aed; background: #fff; }
+  .batch-table .td-label input { text-align: left; }
+  .batch-table .computed { font-weight: 700; }
+  .batch-table .total-row td { background: #faf5ff; font-weight: 800; border-top: 2px solid #c4b5fd; border-bottom: none; }
+  .btn-add { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.83rem; font-weight: 600; background: #ecfdf5; color: #059669; }
+  .btn-add:hover { background: #d1fae5; }
+  .btn-del { background: #fef2f2; color: #ef4444; border: none; cursor: pointer; padding: 4px 8px; border-radius: 5px; font-size: 0.8rem; }
+  .btn-del:hover { background: #fee2e2; }
+  .up   { color: #10b981; }
+  .down { color: #ef4444; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .summary-tile { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; text-align: center; }
+  .summary-tile .lbl { font-size: 0.72rem; color: #94a3b8; margin-bottom: 6px; }
+  .summary-tile .val { font-size: 1.3rem; font-weight: 800; color: #1e293b; }
+  .summary-tile .sub { font-size: 0.72rem; color: #94a3b8; margin-top: 4px; }
+  .summary-tile.profit .val { color: #10b981; }
+  .summary-tile.loss   .val { color: #ef4444; }
+  .summary-tile.purple .val { color: #7c3aed; }
+
+  /* 主動管理費用說明 */
+  .fee-compare {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+  .fee-card {
+    border-radius: 12px; padding: 14px 16px; text-align: center;
+    border: 2px solid transparent;
+  }
+  .fee-card.highlight { border-color: #f59e0b; background: #fffbeb; }
+  .fee-card.normal    { border-color: #e2e8f0; background: #f8fafc; }
+  .fee-card .f-name { font-size: 0.76rem; color: #64748b; margin-bottom: 6px; font-weight: 600; }
+  .fee-card .f-fee  { font-size: 1.2rem; font-weight: 800; }
+  .fee-card .f-note { font-size: 0.72rem; color: #94a3b8; margin-top: 4px; }
+  .fee-card.highlight .f-fee { color: #b45309; }
+
+  .result-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .result-table th {
+    padding: 10px 12px; background: #faf5ff; color: #6d28d9;
+    font-weight: 600; font-size: 0.74rem; text-align: center; border-bottom: 2px solid #e9d5ff;
+  }
+  .result-table th:first-child { text-align: left; }
+  .result-table td { padding: 11px 12px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+  .result-table td:first-child { text-align: left; }
+  .result-table tr:last-child td { border-bottom: none; }
+  .result-table .row-label { font-weight: 700; }
+  .result-table .sub-note  { font-size: 0.72rem; color: #94a3b8; display: block; margin-top: 2px; }
+  .result-table .big       { font-size: 1.0rem; font-weight: 800; }
+
+  .taiex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .taiex-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; text-align: center; }
+  .taiex-card.now { border-color: #c4b5fd; background: #faf5ff; }
+  .taiex-card .t-lbl    { font-size: 0.72rem; color: #94a3b8; margin-bottom: 6px; }
+  .taiex-card .t-taiex  { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px; }
+  .taiex-card .t-etf    { font-size: 1.15rem; font-weight: 800; }
+  .taiex-card .t-pnl    { font-size: 0.85rem; font-weight: 700; margin-top: 6px; }
+  .taiex-card .t-pct    { font-size: 0.78rem; margin-top: 2px; }
+
+  .alpha-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .alpha-card { border-radius: 12px; padding: 16px; text-align: center; border: 2px solid; }
+  .alpha-card.bear  { border-color: #fca5a5; background: #fef2f2; }
+  .alpha-card.base  { border-color: #c4b5fd; background: #faf5ff; }
+  .alpha-card.bull  { border-color: #86efac; background: #f0fdf4; }
+  .alpha-card .a-lbl { font-size: 0.74rem; color: #64748b; margin-bottom: 6px; font-weight: 600; }
+  .alpha-card .a-alpha { font-size: 0.82rem; margin-bottom: 8px; }
+  .alpha-card .a-etf { font-size: 1.1rem; font-weight: 800; }
+  .alpha-card .a-pnl { font-size: 0.85rem; font-weight: 700; margin-top: 6px; }
+
+  .footer { max-width: 960px; margin: 0 auto; text-align: center; font-size: 0.72rem; color: #94a3b8; padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- 頁首 -->
+<div class="page-header">
+  <div>
+    <h1>00403A 統一台股升級50</h1>
+    <p>投資計算表 ｜ 主動型 ETF × 每季配息 × 股價情境試算</p>
+    <div class="badge-row">
+      <span class="badge badge-new">🆕 2026/05 新上市</span>
+      <span class="badge badge-active">主動管理</span>
+      <span class="badge badge-div">每季配息</span>
+    </div>
+  </div>
+  <div class="header-info">
+    <div class="h-lbl">IPO 價格</div>
+    <div class="h-val">$10.00</div>
+    <div class="h-sub">管理費 1.2%／年</div>
+  </div>
+</div>
+
+<!-- 注意事項 -->
+<div class="notice">
+  ⚠ <strong>主動型 ETF 重要提醒：</strong>
+  00403A 由基金經理主動選股，報酬取決於選股能力，不一定與大盤同步漲跌。
+  管理費 1.2%/年（0050 是 0.32%、009816 是 0.10%），長期費用差距顯著。
+  該基金 2026/4/22-24 剛完成募集，預計 5 月上市，目前無歷史績效可參考。
+</div>
+
+<!-- ① 市場參數 -->
+<div class="card">
+  <div class="card-header"><span>📡</span><h2>市場參數</h2><span class="sub">上市後可更新現價</span></div>
+  <div class="card-body">
+    <div class="params-grid">
+      <div class="param-item">
+        <label>00403A 現價（$）</label>
+        <input type="number" id="etfNow" value="10.00" step="0.05" oninput="calc()">
+      </div>
+      <div class="param-item">
+        <label>加權指數（點）</label>
+        <input type="number" id="taiexNow" value="38819" step="1" oninput="calc()">
+      </div>
+      <div class="param-item">
+        <label>預估年配息（$/股）</label>
+        <input type="number" id="divPerShare" value="0.80" step="0.10" oninput="calc()">
+      </div>
+    </div>
+    <div class="param-hint">* 00403A 尚未上市，現價預設 $10（IPO價）。配息預設 $0.80/年（每季 $0.20），上市後可依實際調整。</div>
+  </div>
+</div>
+
+<!-- ② 分批買入 -->
+<div class="card">
+  <div class="card-header"><span>📋</span><h2>分批買入紀錄</h2><span class="sub">可新增多筆</span></div>
+  <div class="card-body">
+    <div style="overflow-x:auto">
+      <table class="batch-table">
+        <thead><tr>
+          <th style="width:120px;text-align:left">備註</th>
+          <th style="width:100px">買入價（$）</th>
+          <th style="width:80px">張數</th>
+          <th style="width:110px">投入成本（$）</th>
+          <th style="width:110px">目前市值（$）</th>
+          <th style="width:110px">獲利（$）</th>
+          <th style="width:80px">報酬率</th>
+          <th style="width:48px"></th>
+        </tr></thead>
+        <tbody id="batchBody"></tbody>
+        <tfoot><tr class="total-row">
+          <td>合計</td><td id="t-avg">—</td><td id="t-lots">—</td>
+          <td id="t-cost">—</td><td id="t-val">—</td><td id="t-pnl">—</td><td id="t-pct">—</td><td></td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+      <button class="btn-add" onclick="addRow()">＋ 新增一筆買入</button>
+      <span style="font-size:0.76rem;color:#94a3b8">每張 = 1,000 股</span>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 摘要 -->
+<div class="card">
+  <div class="card-header"><span>💼</span><h2>目前持倉摘要</h2></div>
+  <div class="card-body">
+    <div class="summary-grid">
+      <div class="summary-tile"><div class="lbl">總持股</div><div class="val" id="s-lots">—</div><div class="sub">張</div></div>
+      <div class="summary-tile"><div class="lbl">加權平均成本</div><div class="val purple" id="s-avg">—</div><div class="sub">元/股</div></div>
+      <div class="summary-tile"><div class="lbl">總投入</div><div class="val" id="s-cost">—</div><div class="sub">元</div></div>
+      <div class="summary-tile"><div class="lbl">目前市值</div><div class="val" id="s-val">—</div><div class="sub">元</div></div>
+      <div class="summary-tile profit" id="s-tile"><div class="lbl">未實現損益</div><div class="val" id="s-pnl">—</div><div class="sub" id="s-pct">—</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 管理費比較 -->
+<div class="card">
+  <div class="card-header"><span>💸</span><h2>管理費差距試算（3年）</h2><span class="sub">每年從 NAV 直接扣除，複利越久影響越大</span></div>
+  <div class="card-body">
+    <div class="fee-compare">
+      <div class="fee-card highlight">
+        <div class="f-name">00403A 統一台股升級50</div>
+        <div class="f-fee">1.20%／年</div>
+        <div class="f-note">主動管理，選股靈活</div>
+      </div>
+      <div class="fee-card normal">
+        <div class="f-name">0050 元大台灣50</div>
+        <div class="f-fee" style="color:#475569">0.32%／年</div>
+        <div class="f-note">被動追蹤，低費用</div>
+      </div>
+      <div class="fee-card normal">
+        <div class="f-name">009816 凱基TOP50</div>
+        <div class="f-fee" style="color:#0ea5e9">0.10%／年</div>
+        <div class="f-note">累積型，最低費用</div>
+      </div>
+    </div>
+    <div id="feeDiff" style="font-size:0.82rem;color:#64748b;line-height:1.8"></div>
+  </div>
+</div>
+
+<!-- ⑤ 配息收入試算 -->
+<div class="card">
+  <div class="card-header"><span>💰</span><h2>配息收入試算</h2><span class="sub">每季評估配息，1月/4月/7月/10月</span></div>
+  <div class="card-body">
+    <div id="divSummary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:12px"></div>
+    <div style="font-size:0.78rem;color:#64748b;line-height:1.7">
+      ・00403A 設有<strong>收益平準金機制</strong>，讓每次配息金額更穩定<br>
+      ・配息後股價同步下降配息金額（除息），兩者加總才是真實報酬<br>
+      ・管理費 1.2% 從 NAV 扣除，實際可配息金額會低於持股市值 × 殖利率
+    </div>
+  </div>
+</div>
+
+<!-- ⑥ 大盤情境 × 3年股價 + 配息合計 -->
+<div class="card">
+  <div class="card-header"><span>📊</span><h2>3 年情境：股價漲幅 ＋ 配息合計</h2>
+    <span class="sub">被動追大盤估算（主動選股可能更好或更差）</span>
+  </div>
+  <div class="card-body">
+    <div style="overflow-x:auto">
+      <table class="result-table">
+        <thead><tr>
+          <th style="text-align:left;width:130px">大盤情境</th>
+          <th>股價估算（$）</th>
+          <th>股價損益（$）</th>
+          <th>3年配息收入（$）</th>
+          <th>合計損益（$）</th>
+          <th>合計報酬率</th>
+        </tr></thead>
+        <tbody id="scenarioBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;font-size:0.75rem;color:#94a3b8">
+      ※ 股價假設與大盤等比例（主動選股有 alpha 請看下方）｜配息 = 持股 × 年配息 × 3 年
+    </div>
+  </div>
+</div>
+
+<!-- ⑦ 主動選股 Alpha 情境 -->
+<div class="card">
+  <div class="card-header"><span>🎲</span><h2>主動管理 Alpha 情境（大盤 45,000 點為基準）</h2>
+    <span class="sub">主動型最大變數：基金經理能否超越指數？</span>
+  </div>
+  <div class="card-body">
+    <div class="alpha-grid" id="alphaGrid"></div>
+    <div style="margin-top:12px;font-size:0.76rem;color:#64748b;line-height:1.7">
+      ・<strong>Alpha</strong> = 相對大盤的超額報酬。管理費 1.2% 已先蠶食 0.88%（相對 0050 的 0.32%）<br>
+      ・基金剛上市，無績效紀錄，alpha 的好壞完全取決於後續操作
+    </div>
+  </div>
+</div>
+
+<!-- ⑧ 自訂情境 -->
+<div class="card">
+  <div class="card-header"><span>🔧</span><h2>自訂情境試算</h2></div>
+  <div class="card-body">
+    <div class="params-grid" style="margin-bottom:16px">
+      <div class="param-item"><label>目標大盤（點）</label><input type="number" id="customTaiex" value="50000" step="100" oninput="calcCustom()"></div>
+      <div class="param-item"><label>持有年數</label><input type="number" id="customYears" value="3" step="1" min="1" max="10" oninput="calcCustom()"></div>
+      <div class="param-item"><label>Alpha（%，正負皆可）</label><input type="number" id="customAlpha" value="0" step="0.5" oninput="calcCustom()"></div>
+    </div>
+    <div id="customResult" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px"></div>
+  </div>
+</div>
+
+<div class="footer">
+  00403A 統一台股升級50 投資計算表 ｜ 本表僅供參考，主動型 ETF 具不確定性，投資請自行評估
+</div>
+
+<script>
+const DEFAULT_ROWS = [{ id: 0, label: '第一批（IPO認購）', price: 10, lots: 100 }];
+let rows = [...DEFAULT_ROWS];
+let nextId = 1;
+
+const TAIEX_SCENARIOS = [
+  { label: '最低點',        taiex: 31000 },
+  { label: '目前',          taiex: null, now: true },
+  { label: '大盤 44,000',   taiex: 44000 },
+  { label: '大盤 45,000',   taiex: 45000 },
+  { label: '大盤 55,000',   taiex: 55000 },
+];
+
+const ALPHA_SCENARIOS = [
+  { label: '大幅跑輸',   alpha: -5, cls: 'bear', note: '選股失利，管理費拖累' },
+  { label: '與大盤同步', alpha:  0, cls: 'base', note: '選股與指數相近' },
+  { label: '小幅超越',   alpha: +3, cls: 'bull', note: '部分精選股跑贏' },
+  { label: '顯著超越',   alpha: +8, cls: 'bull', note: '黑馬股票大漲貢獻' },
+];
+
+function renderRows() {
+  const body = document.getElementById('batchBody');
+  body.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-label"><input type="text" value="${r.label}" oninput="updateRow(${r.id},'label',this.value)"></td>
+      <td><input type="number" step="0.05" value="${r.price}" oninput="updateRow(${r.id},'price',+this.value)"></td>
+      <td><input type="number" step="1" value="${r.lots}" oninput="updateRow(${r.id},'lots',+this.value)"></td>
+      <td class="computed" id="c-cost-${r.id}">—</td>
+      <td class="computed" id="c-val-${r.id}">—</td>
+      <td class="computed" id="c-pnl-${r.id}">—</td>
+      <td class="computed" id="c-pct-${r.id}">—</td>
+      <td><button class="btn-del" onclick="delRow(${r.id})">✕</button></td>
+    `;
+    body.appendChild(tr);
+  });
+  calc();
+}
+
+function addRow()  { rows.push({ id: nextId++, label: '', price: 10, lots: 0 }); renderRows(); }
+function delRow(id){ rows = rows.filter(r => r.id !== id); renderRows(); }
+function updateRow(id, f, v){ const r = rows.find(r => r.id === id); if(r){ r[f]=v; calc(); } }
+
+function calc() {
+  const etfNow     = +document.getElementById('etfNow').value     || 10;
+  const taiexNow   = +document.getElementById('taiexNow').value   || 38819;
+  const divPerYear = +document.getElementById('divPerShare').value || 0.80;
+
+  let totalCost = 0, totalShares = 0;
+  rows.forEach(r => {
+    const shares = r.lots * 1000;
+    const cost   = shares * r.price;
+    const val    = shares * etfNow;
+    const pnl    = val - cost;
+    const pct    = r.price > 0 ? pnl / cost * 100 : 0;
+    totalCost   += cost; totalShares += shares;
+    const cls = pnl>=0?'up':'down', sgn = pnl>=0?'+':'';
+    const s = id => document.getElementById(id);
+    if(s('c-cost-'+r.id)) s('c-cost-'+r.id).textContent  = cost>0?'$'+Math.round(cost).toLocaleString():'—';
+    if(s('c-val-'+r.id))  s('c-val-'+r.id).textContent   = val>0?'$'+Math.round(val).toLocaleString():'—';
+    if(s('c-pnl-'+r.id))  s('c-pnl-'+r.id).innerHTML     = cost>0?`<span class="${cls}">${sgn}$${Math.round(pnl).toLocaleString()}</span>`:'—';
+    if(s('c-pct-'+r.id))  s('c-pct-'+r.id).innerHTML     = cost>0?`<span class="${cls}">${sgn}${pct.toFixed(1)}%</span>`:'—';
+  });
+
+  const totalVal  = totalShares * etfNow;
+  const totalPnl  = totalVal - totalCost;
+  const totalPct  = totalCost > 0 ? totalPnl/totalCost*100 : 0;
+  const avgCost   = totalShares > 0 ? totalCost/totalShares : 0;
+  const totalLots = totalShares/1000;
+  const cls = totalPnl>=0?'up':'down', sgn = totalPnl>=0?'+':'';
+
+  document.getElementById('t-avg').textContent  = avgCost>0?'$'+avgCost.toFixed(2):'—';
+  document.getElementById('t-lots').textContent = totalLots>0?totalLots+' 張':'—';
+  document.getElementById('t-cost').textContent = totalCost>0?'$'+Math.round(totalCost).toLocaleString():'—';
+  document.getElementById('t-val').textContent  = totalVal>0?'$'+Math.round(totalVal).toLocaleString():'—';
+  document.getElementById('t-pnl').innerHTML    = totalCost>0?`<span class="${cls}">${sgn}$${Math.round(totalPnl).toLocaleString()}</span>`:'—';
+  document.getElementById('t-pct').innerHTML    = totalCost>0?`<span class="${cls}">${sgn}${totalPct.toFixed(1)}%</span>`:'—';
+  document.getElementById('s-lots').textContent = totalLots>0?totalLots:'—';
+  document.getElementById('s-avg').textContent  = avgCost>0?'$'+avgCost.toFixed(2):'—';
+  document.getElementById('s-cost').textContent = totalCost>0?'$'+Math.round(totalCost).toLocaleString():'—';
+  document.getElementById('s-val').textContent  = totalVal>0?'$'+Math.round(totalVal).toLocaleString():'—';
+  document.getElementById('s-pnl').textContent  = totalCost>0?`${sgn}$${Math.round(totalPnl).toLocaleString()}`:'—';
+  document.getElementById('s-pct').textContent  = totalCost>0?`${sgn}${totalPct.toFixed(1)}% 損益率`:'—';
+  document.getElementById('s-tile').className   = 'summary-tile '+(totalPnl>=0?'profit':'loss');
+
+  // 管理費差距
+  const cost3y_403 = totalCost * (1 - Math.pow(1-0.012, 3));
+  const cost3y_050 = totalCost * (1 - Math.pow(1-0.0032, 3));
+  const cost3y_816 = totalCost * (1 - Math.pow(1-0.001, 3));
+  const feeDiff = document.getElementById('feeDiff');
+  if(feeDiff && totalCost>0) feeDiff.innerHTML = `
+    以您投入 <strong>$${Math.round(totalCost).toLocaleString()}</strong> 計算，3 年累積管理費用：<br>
+    ・00403A：<strong style="color:#b45309">-$${Math.round(cost3y_403).toLocaleString()}</strong>（從 NAV 自動扣，不另外收）<br>
+    ・0050：-$${Math.round(cost3y_050).toLocaleString()}　｜　009816：-$${Math.round(cost3y_816).toLocaleString()}<br>
+    ・00403A 比 0050 多花 <strong>-$${Math.round(cost3y_403-cost3y_050).toLocaleString()}</strong>，
+      比 009816 多花 <strong>-$${Math.round(cost3y_403-cost3y_816).toLocaleString()}</strong>（3年）
+  `;
+
+  // 配息試算
+  const divYear = totalShares * divPerYear;
+  const div3y   = divYear * 3;
+  const divEl   = document.getElementById('divSummary');
+  if(divEl && totalShares>0) divEl.innerHTML = `
+    <div class="summary-tile"><div class="lbl">每年配息（預估）</div><div class="val up">+$${Math.round(divYear).toLocaleString()}</div><div class="sub">$${divPerYear}/股 × ${totalLots}張</div></div>
+    <div class="summary-tile"><div class="lbl">3 年累計配息</div><div class="val up">+$${Math.round(div3y).toLocaleString()}</div><div class="sub">現金，不複利</div></div>
+    <div class="summary-tile"><div class="lbl">殖利率（現價）</div><div class="val purple">${(divPerYear/etfNow*100).toFixed(2)}%</div><div class="sub">年化估算</div></div>
+    <div class="summary-tile"><div class="lbl">扣管理費後實質殖利率</div><div class="val">${Math.max(0,divPerYear/etfNow*100-1.2).toFixed(2)}%</div><div class="sub">約扣 1.2% 管理費</div></div>
+  `;
+
+  // 情境表
+  const scBody = document.getElementById('scenarioBody');
+  if(scBody) scBody.innerHTML = TAIEX_SCENARIOS.map(s => {
+    const tgt  = s.now ? taiexNow : s.taiex;
+    const etfT = etfNow * (tgt / taiexNow);
+    const pricePnl = totalShares * (etfT - avgCost);
+    const totalPnl = pricePnl + div3y;
+    const totalPct = totalCost>0 ? totalPnl/totalCost*100 : 0;
+    const cP = pricePnl>=0?'up':'down', cT = totalPnl>=0?'up':'down';
+    return `<tr>
+      <td class="row-label">${s.label}<span class="sub-note">${tgt.toLocaleString()} 點</span></td>
+      <td class="big">$${etfT.toFixed(2)}</td>
+      <td class="big ${cP}">${totalCost>0?(pricePnl>=0?'+':'')+' $'+Math.round(pricePnl).toLocaleString():'—'}</td>
+      <td class="big up">${totalCost>0?'+ $'+Math.round(div3y).toLocaleString():'—'}</td>
+      <td class="big ${cT}">${totalCost>0?(totalPnl>=0?'+':'')+' $'+Math.round(totalPnl).toLocaleString():'—'}</td>
+      <td class="big ${cT}">${totalCost>0?(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+
+  // Alpha 情境（以大盤 45,000 為基準）
+  const taiexBase = 45000;
+  const etfBase   = etfNow * (taiexBase / taiexNow);
+  const alphaGrid = document.getElementById('alphaGrid');
+  if(alphaGrid) alphaGrid.innerHTML = ALPHA_SCENARIOS.map(s => {
+    const etfA = etfBase * (1 + s.alpha/100);
+    const pricePnl = totalShares * (etfA - avgCost);
+    const total    = pricePnl + div3y;
+    const pct      = totalCost>0 ? total/totalCost*100 : 0;
+    const cT       = total>=0?'up':'down';
+    return `<div class="alpha-card ${s.cls}">
+      <div class="a-lbl">${s.label}</div>
+      <div class="a-alpha" style="color:${s.alpha>0?'#10b981':s.alpha<0?'#ef4444':'#94a3b8'}">
+        Alpha ${s.alpha>=0?'+':''}${s.alpha}%<br><span style="font-size:0.7rem;color:#94a3b8">${s.note}</span>
+      </div>
+      <div class="a-etf">0050 估 $${etfBase.toFixed(2)} ${s.alpha!==0?'→ $'+etfA.toFixed(2):''}</div>
+      ${totalCost>0?`<div class="a-pnl ${cT}">${total>=0?'+':''}$${Math.round(total).toLocaleString()}（${pct>=0?'+':''}${pct.toFixed(1)}%）</div>`:''}
+    </div>`;
+  }).join('');
+
+  calcCustom();
+}
+
+function calcCustom() {
+  const etfNow     = +document.getElementById('etfNow').value     || 10;
+  const taiexNow   = +document.getElementById('taiexNow').value   || 38819;
+  const divPerYear = +document.getElementById('divPerShare').value || 0.80;
+  const custTaiex  = +document.getElementById('customTaiex').value || 50000;
+  const custYears  = +document.getElementById('customYears').value || 3;
+  const custAlpha  = +document.getElementById('customAlpha').value || 0;
+  const totalShares = rows.reduce((s,r) => s+r.lots*1000, 0);
+  const totalCost   = rows.reduce((s,r) => s+r.lots*1000*r.price, 0);
+  const avgCost     = totalShares>0 ? totalCost/totalShares : 0;
+
+  const etfT    = etfNow * (custTaiex/taiexNow) * (1 + custAlpha/100);
+  const pricePnl= totalShares * (etfT - avgCost);
+  const divTotal= totalShares * divPerYear * custYears;
+  const total   = pricePnl + divTotal;
+  const pct     = totalCost>0 ? total/totalCost*100 : 0;
+  const cT = total>=0?'up':'down';
+
+  document.getElementById('customResult').innerHTML = `
+    <div class="taiex-card">
+      <div class="t-lbl">大盤 ${custTaiex.toLocaleString()} 點<br>Alpha ${custAlpha>=0?'+':''}${custAlpha}%｜${custYears}年</div>
+      <div class="t-etf">$${etfT.toFixed(2)}</div>
+      ${totalCost>0?`
+      <div class="t-pnl ${cT}">${total>=0?'+':''}$${Math.round(total).toLocaleString()}</div>
+      <div class="t-pct ${cT}">${pct>=0?'+':''}${pct.toFixed(1)}%</div>`:''}
+    </div>
+    <div class="taiex-card">
+      <div class="t-lbl">明細</div>
+      <div style="text-align:left;font-size:0.8rem;line-height:1.9;padding:4px 0">
+        股價損益：<span class="${pricePnl>=0?'up':'down'}" style="font-weight:700">${pricePnl>=0?'+':''}$${Math.round(pricePnl).toLocaleString()}</span><br>
+        ${custYears}年配息：<span class="up" style="font-weight:700">+$${Math.round(divTotal).toLocaleString()}</span><br>
+        合計：<span class="${cT}" style="font-weight:800">${total>=0?'+':''}$${Math.round(total).toLocaleString()}</span>
+      </div>
+    </div>
+  `;
+}
+
+renderRows();
+</script>
+</body>
+</html>
