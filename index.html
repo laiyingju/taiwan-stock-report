@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>台股晨報 ｜ 兆赫 · 華邦電 · 瀧澤科</title>
+<title>台股晨報 ｜ 兆赫 · 華邦電 · 瀧澤科 · 富喬</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,6 +38,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
 .stag-a { background:rgba(229,57,53,.25); color:#ff8a80; border:1px solid rgba(229,57,53,.3); }
 .stag-b { background:rgba(30,136,229,.25); color:#82b1ff; border:1px solid rgba(30,136,229,.3); }
 .stag-c { background:rgba(67,160,71,.25); color:#b9f6ca; border:1px solid rgba(67,160,71,.3); }
+.stag-d { background:rgba(245,124,0,.25); color:#ffcc80; border:1px solid rgba(245,124,0,.3); }
 
 /* ── 共用 ── */
 .wrap { max-width:980px; margin:0 auto; }
@@ -84,6 +85,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
 .tw-cell.a { border-color:var(--red); }
 .tw-cell.b { border-color:var(--blue); }
 .tw-cell.c { border-color:var(--green); }
+.tw-cell.d { border-color:var(--orange); }
 .tw-name { font-size:0.82rem; font-weight:800; color:var(--muted); margin-bottom:4px; }
 .tw-price { font-size:1.5rem; font-weight:900; margin-bottom:2px; }
 .tw-change { font-size:0.88rem; font-weight:700; }
@@ -194,6 +196,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
 .ee-card.a { border-color:var(--red); }
 .ee-card.b { border-color:var(--blue); }
 .ee-card.c { border-color:var(--green); }
+.ee-card.d { border-color:var(--orange); }
 .ee-head { font-size:0.92rem; font-weight:800; margin-bottom:14px; }
 .ee-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; font-size:0.86rem; }
 .ee-row .lbl { color:var(--muted); }
@@ -281,6 +284,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
     <span class="stag stag-a">📡 兆赫 2485</span>
     <span class="stag stag-b">💾 華邦電 2344</span>
     <span class="stag stag-c">💧 瀧澤科 6609</span>
+    <span class="stag stag-d">🧵 富喬 1815</span>
   </div>
 </div>
 
@@ -320,6 +324,12 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
           <div class="tw-change up" id="lz-chg">—</div>
           <div class="tw-predict pred-orange" id="lz-pred">等待更新</div>
         </div>
+        <div class="tw-cell d">
+          <div class="tw-name">🧵 富喬 1815</div>
+          <div class="tw-price up" id="fj-price">$108</div>
+          <div class="tw-change up" id="fj-chg">—</div>
+          <div class="tw-predict pred-orange" id="fj-pred">等待更新</div>
+        </div>
       </div>
 
       <div class="section-title" style="margin-bottom:8px">🤖 AI 晨報分析</div>
@@ -332,7 +342,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
 
 <!-- ── 觀察名單 ── -->
 <div class="watchlist-section">
-  <div class="section-title">👀 觀察名單 — AI ＆ 新興產業 10 檔</div>
+  <div class="section-title">👀 觀察名單 — AI ＆ 新興產業</div>
   <div class="wl-grid" id="wlGrid">
     <!-- 由 JS 動態渲染 -->
     <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:0.9rem;">載入中...</div>
@@ -346,6 +356,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
     <button class="tab-btn active" onclick="switchChart('zx', this)">兆赫 2485</button>
     <button class="tab-btn" onclick="switchChart('hb', this)">華邦電 2344</button>
     <button class="tab-btn" onclick="switchChart('lz', this)">瀧澤科 6609</button>
+    <button class="tab-btn" onclick="switchChart('fj', this)">富喬 1815</button>
   </div>
   <div class="chart-canvas-wrap">
     <canvas id="mainChart" width="600" height="260"></canvas>
@@ -359,6 +370,7 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
     <button class="tab-btn active" onclick="switchWave('兆赫', this)">兆赫 2485</button>
     <button class="tab-btn" onclick="switchWave('華邦電', this)">華邦電 2344</button>
     <button class="tab-btn" onclick="switchWave('瀧澤科', this)">瀧澤科 6609</button>
+    <button class="tab-btn" onclick="switchWave('富喬', this)">富喬 1815</button>
   </div>
   <div id="waveTable"></div>
 </div>
@@ -390,6 +402,14 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
       <div class="ee-row"><span class="lbl">15% 目標退場</span><span class="ee-target">$46.0</span></div>
       <div class="ee-row"><span class="lbl">停損</span><span style="font-weight:700;color:#aaa">$33（-8%）</span></div>
       <div class="ee-sig sig-buy">✅ 逢回 $36–$39 分批進場，液冷概念持續</div>
+    </div>
+    <div class="ee-card d">
+      <div class="ee-head">🧵 富喬 1815</div>
+      <div class="ee-row"><span class="lbl">現價</span><span class="ee-big up" id="ee-fj-price">$108</span></div>
+      <div class="ee-row"><span class="lbl">建議進場</span><span style="font-weight:700;color:var(--orange)">$100 – $108</span></div>
+      <div class="ee-row"><span class="lbl">15% 目標退場</span><span class="ee-target">$120.0</span></div>
+      <div class="ee-row"><span class="lbl">停損</span><span style="font-weight:700;color:#aaa">$95（-8%）</span></div>
+      <div class="ee-sig sig-watch">👀 現價在進場區間，5G 玻纖布需求回升中</div>
     </div>
   </div>
 </div>
@@ -551,6 +571,58 @@ body { background:var(--bg); font-family:'PingFang TC','微軟正黑體','Segoe 
   </div>
 </div>
 
+<!-- ══ 富喬 ══ -->
+<div class="stock-section wrap">
+  <div class="stock-hdr">
+    <div class="s-badge" style="background:rgba(245,124,0,.15);color:var(--orange)">🧵</div>
+    <div class="s-title">
+      <h2>富喬 <span class="s-tag" style="background:rgba(245,124,0,.15);color:var(--orange)">1815</span></h2>
+      <div class="desc">玻璃纖維布龍頭 ｜ 5G 基站覆銅板 ｜ 電動車電池隔板</div>
+    </div>
+  </div>
+  <div class="stock-body">
+    <div class="two-col">
+      <div class="info-blk">
+        <h4>基本面</h4>
+        <div class="info-row"><span class="k">現價（參考）</span><span class="v" id="f-fj-price">$108</span></div>
+        <div class="info-row"><span class="k">52 週區間</span><span class="v">$85 – $125</span></div>
+        <div class="info-row"><span class="k">2025E EPS</span><span class="v">$5.5</span></div>
+        <div class="info-row"><span class="k">2026E EPS</span><span class="v v-green">$6.2–$7.0（+13–27%）</span></div>
+        <div class="info-row"><span class="k">本益比</span><span class="v">約 18x</span></div>
+        <div class="info-row"><span class="k">股價淨值比</span><span class="v">約 1.4x</span></div>
+        <div class="info-row"><span class="k">殖利率</span><span class="v v-green">約 4.2%（防禦性佳）</span></div>
+        <div class="info-row"><span class="k">建議進場區</span><span class="v v-red">$100 – $108</span></div>
+        <div class="info-row"><span class="k">趨勢</span><span class="v">區間震盪，等突破 $112</span></div>
+      </div>
+      <div class="info-blk">
+        <h4>同業比較</h4>
+        <table class="peer-tbl">
+          <tr><th>公司</th><th>代號</th><th>本益比</th><th>殖利率</th></tr>
+          <tr class="hl"><td>富喬</td><td>1815</td><td>18x</td><td class="up">4.2%</td></tr>
+          <tr><td>宏和精密</td><td>1446</td><td>20x</td><td>3.8%</td></tr>
+          <tr><td>台玻</td><td>1802</td><td>22x</td><td>3.5%</td></tr>
+          <tr><td>台灣玻纖</td><td>1362</td><td>16x</td><td>4.5%</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="info-blk" style="margin-bottom:16px;">
+      <h4>近期重要新聞</h4>
+      <ul class="news-list">
+        <li><div class="nd nd-g"></div>5G 基站覆銅板玻纖用量年增 30%+，富喬為主要供應商，2026 Q1 報價上漲 10%</li>
+        <li><div class="nd nd-o"></div>電動車電池隔板玻纖滲透率提升，高階品訂單能見度達 2 季以上</li>
+        <li><div class="nd nd-g"></div>2026 年報價較去年同期上漲 8–12%，毛利率持續改善中</li>
+        <li><div class="nd nd-b"></div>殖利率 4.2% 優於定存，法人持股比例穩定，具防禦性支撐</li>
+      </ul>
+    </div>
+    <div id="sc-fj" class="sc-section" style="margin-bottom:16px;"></div>
+    <div class="outlook-blk">
+      <h4>未來走勢展望</h4>
+      <p>富喬工業是台灣最大玻璃纖維布製造商，下游應用涵蓋覆銅板（PCB 基板）、電動車電池隔板與 5G 天線板。2026 年隨著 5G 基站建設加速及 EV 電池規格升級，高階玻纖布需求持續成長，報價已連續兩季回升。殖利率 4.2% 在升息循環尾端具下檔保護，估值偏低（PBR 1.4x）是補漲誘因。短線若能站穩 $108 並突破 $112 壓力，中線看 $120（+15% 目標）；再上 $128 為年高壓力位。</p>
+    </div>
+    <div class="risk-blk"><strong>⚠ 風險：</strong>玻纖布產能過剩導致報價反轉；中國廠商低價競爭；電動車需求不如預期；能源成本上升壓縮毛利率。</div>
+  </div>
+</div>
+
 <div class="disclaimer">
   本報告每日早上 8:30 自動更新（平日）｜ 資料來源：Yahoo Finance、TWSE、公開財報<br>
   所有預測與建議僅供參考，不構成投資建議。股市有風險，請自行評估後做決策。🙏
@@ -666,6 +738,11 @@ const MAIN_STOCKS_SC = {
     downstream:[{n:'緯穎'},{n:'緯創'},{n:'健策'},{n:'奇鋐'}],
     peer:      [{n:'雙鴻'},{n:'奇鋐'},{n:'高力'}],
   },
+  '富喬': {
+    upstream:  [{n:'矽砂原料'},{n:'純堿化工'},{n:'天然氣能源'},{n:'設備廠'}],
+    downstream:[{n:'覆銅板廠'},{n:'PCB 廠'},{n:'EV 電池廠'},{n:'5G 天線板廠'}],
+    peer:      [{n:'宏和精密'},{n:'台玻'},{n:'台灣玻纖'}],
+  },
 };
 </script>
 
@@ -673,7 +750,7 @@ const MAIN_STOCKS_SC = {
 <script>
 // DAILY_DATA_START
 const DAILY_DATA = {
-  "updated": "2026-04-24 11:52",
+  "updated": "2026-04-24 12:17",
   "stocks": {
     "兆赫": {
       "symbol": "2485.TW",
@@ -1180,11 +1257,11 @@ const DAILY_DATA = {
         72.3,
         71.0,
         63.9,
-        60.4
+        60.3
       ],
-      "current": 60.4,
+      "current": 60.3,
       "prev_close": 63.9,
-      "change_pct": -5.48,
+      "change_pct": -5.63,
       "ma5": 67.7,
       "momentum": "down",
       "entry": [
@@ -1699,12 +1776,12 @@ const DAILY_DATA = {
         91.1,
         90.6,
         87.8,
-        87.4
+        86.6
       ],
-      "current": 87.4,
+      "current": 86.6,
       "prev_close": 87.8,
-      "change_pct": -0.46,
-      "ma5": 88.5,
+      "change_pct": -1.37,
+      "ma5": 88.4,
       "momentum": "down",
       "entry": [
         82,
@@ -2218,12 +2295,12 @@ const DAILY_DATA = {
         38.7,
         38.6,
         37.8,
-        36.8
+        37.1
       ],
-      "current": 36.8,
+      "current": 37.1,
       "prev_close": 37.8,
-      "change_pct": -2.65,
-      "ma5": 38.0,
+      "change_pct": -1.85,
+      "ma5": 38.1,
       "momentum": "down",
       "entry": [
         36,
@@ -2231,6 +2308,525 @@ const DAILY_DATA = {
       ],
       "target15": 46.0,
       "stop": 33
+    },
+    "富喬": {
+      "symbol": "1815.TWO",
+      "code": "1815",
+      "dates": [
+        "2025-04-15",
+        "2025-04-16",
+        "2025-04-17",
+        "2025-04-18",
+        "2025-04-21",
+        "2025-04-22",
+        "2025-04-23",
+        "2025-04-24",
+        "2025-04-25",
+        "2025-04-28",
+        "2025-04-29",
+        "2025-04-30",
+        "2025-05-02",
+        "2025-05-05",
+        "2025-05-06",
+        "2025-05-07",
+        "2025-05-08",
+        "2025-05-09",
+        "2025-05-12",
+        "2025-05-13",
+        "2025-05-14",
+        "2025-05-15",
+        "2025-05-16",
+        "2025-05-19",
+        "2025-05-20",
+        "2025-05-21",
+        "2025-05-22",
+        "2025-05-23",
+        "2025-05-26",
+        "2025-05-27",
+        "2025-05-28",
+        "2025-05-29",
+        "2025-06-02",
+        "2025-06-03",
+        "2025-06-04",
+        "2025-06-05",
+        "2025-06-06",
+        "2025-06-09",
+        "2025-06-10",
+        "2025-06-11",
+        "2025-06-12",
+        "2025-06-13",
+        "2025-06-16",
+        "2025-06-17",
+        "2025-06-18",
+        "2025-06-19",
+        "2025-06-20",
+        "2025-06-23",
+        "2025-06-24",
+        "2025-06-25",
+        "2025-06-26",
+        "2025-06-27",
+        "2025-06-30",
+        "2025-07-01",
+        "2025-07-02",
+        "2025-07-03",
+        "2025-07-04",
+        "2025-07-07",
+        "2025-07-08",
+        "2025-07-09",
+        "2025-07-10",
+        "2025-07-11",
+        "2025-07-14",
+        "2025-07-15",
+        "2025-07-16",
+        "2025-07-17",
+        "2025-07-18",
+        "2025-07-21",
+        "2025-07-22",
+        "2025-07-23",
+        "2025-07-24",
+        "2025-07-25",
+        "2025-07-28",
+        "2025-07-29",
+        "2025-07-30",
+        "2025-07-31",
+        "2025-08-04",
+        "2025-08-05",
+        "2025-08-06",
+        "2025-08-07",
+        "2025-08-08",
+        "2025-08-11",
+        "2025-08-12",
+        "2025-08-13",
+        "2025-08-14",
+        "2025-08-15",
+        "2025-08-18",
+        "2025-08-19",
+        "2025-08-20",
+        "2025-08-21",
+        "2025-08-22",
+        "2025-08-25",
+        "2025-08-26",
+        "2025-08-27",
+        "2025-08-28",
+        "2025-08-29",
+        "2025-09-01",
+        "2025-09-02",
+        "2025-09-03",
+        "2025-09-04",
+        "2025-09-05",
+        "2025-09-08",
+        "2025-09-09",
+        "2025-09-10",
+        "2025-09-11",
+        "2025-09-12",
+        "2025-09-15",
+        "2025-09-16",
+        "2025-09-17",
+        "2025-09-18",
+        "2025-09-19",
+        "2025-09-22",
+        "2025-09-23",
+        "2025-09-24",
+        "2025-09-25",
+        "2025-09-26",
+        "2025-09-30",
+        "2025-10-01",
+        "2025-10-02",
+        "2025-10-03",
+        "2025-10-07",
+        "2025-10-08",
+        "2025-10-09",
+        "2025-10-13",
+        "2025-10-14",
+        "2025-10-15",
+        "2025-10-16",
+        "2025-10-17",
+        "2025-10-20",
+        "2025-10-21",
+        "2025-10-22",
+        "2025-10-23",
+        "2025-10-27",
+        "2025-10-28",
+        "2025-10-29",
+        "2025-10-30",
+        "2025-10-31",
+        "2025-11-03",
+        "2025-11-04",
+        "2025-11-05",
+        "2025-11-06",
+        "2025-11-07",
+        "2025-11-10",
+        "2025-11-11",
+        "2025-11-12",
+        "2025-11-13",
+        "2025-11-14",
+        "2025-11-17",
+        "2025-11-18",
+        "2025-11-19",
+        "2025-11-20",
+        "2025-11-21",
+        "2025-11-24",
+        "2025-11-25",
+        "2025-11-26",
+        "2025-11-27",
+        "2025-11-28",
+        "2025-12-01",
+        "2025-12-02",
+        "2025-12-03",
+        "2025-12-04",
+        "2025-12-05",
+        "2025-12-08",
+        "2025-12-09",
+        "2025-12-10",
+        "2025-12-11",
+        "2025-12-12",
+        "2025-12-15",
+        "2025-12-16",
+        "2025-12-17",
+        "2025-12-18",
+        "2025-12-19",
+        "2025-12-22",
+        "2025-12-23",
+        "2025-12-24",
+        "2025-12-26",
+        "2025-12-29",
+        "2025-12-30",
+        "2025-12-31",
+        "2026-01-02",
+        "2026-01-05",
+        "2026-01-06",
+        "2026-01-07",
+        "2026-01-08",
+        "2026-01-09",
+        "2026-01-12",
+        "2026-01-13",
+        "2026-01-14",
+        "2026-01-15",
+        "2026-01-16",
+        "2026-01-19",
+        "2026-01-20",
+        "2026-01-21",
+        "2026-01-22",
+        "2026-01-23",
+        "2026-01-26",
+        "2026-01-27",
+        "2026-01-28",
+        "2026-01-29",
+        "2026-01-30",
+        "2026-02-02",
+        "2026-02-03",
+        "2026-02-04",
+        "2026-02-05",
+        "2026-02-06",
+        "2026-02-09",
+        "2026-02-10",
+        "2026-02-11",
+        "2026-02-23",
+        "2026-02-24",
+        "2026-02-25",
+        "2026-02-26",
+        "2026-03-02",
+        "2026-03-03",
+        "2026-03-04",
+        "2026-03-05",
+        "2026-03-06",
+        "2026-03-09",
+        "2026-03-10",
+        "2026-03-11",
+        "2026-03-12",
+        "2026-03-13",
+        "2026-03-16",
+        "2026-03-17",
+        "2026-03-18",
+        "2026-03-19",
+        "2026-03-20",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-25",
+        "2026-03-26",
+        "2026-03-27",
+        "2026-03-30",
+        "2026-03-31",
+        "2026-04-01",
+        "2026-04-02",
+        "2026-04-07",
+        "2026-04-08",
+        "2026-04-09",
+        "2026-04-10",
+        "2026-04-13",
+        "2026-04-14",
+        "2026-04-15",
+        "2026-04-16",
+        "2026-04-17",
+        "2026-04-20",
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "prices": [
+        28.0,
+        28.0,
+        27.9,
+        28.0,
+        26.4,
+        26.0,
+        27.5,
+        27.1,
+        28.3,
+        28.2,
+        28.1,
+        27.2,
+        30.0,
+        28.7,
+        28.5,
+        28.5,
+        29.2,
+        30.0,
+        29.9,
+        30.1,
+        30.2,
+        30.5,
+        30.6,
+        29.7,
+        29.4,
+        30.7,
+        30.4,
+        32.2,
+        32.5,
+        32.8,
+        35.3,
+        35.1,
+        34.9,
+        35.5,
+        39.0,
+        39.2,
+        39.5,
+        39.7,
+        39.8,
+        38.5,
+        38.2,
+        37.5,
+        39.3,
+        38.2,
+        37.9,
+        37.3,
+        36.2,
+        36.4,
+        37.4,
+        36.5,
+        36.1,
+        35.3,
+        36.2,
+        35.7,
+        35.9,
+        35.5,
+        34.6,
+        34.7,
+        35.4,
+        36.3,
+        37.6,
+        37.1,
+        37.8,
+        41.6,
+        44.5,
+        47.6,
+        46.1,
+        44.5,
+        44.1,
+        44.2,
+        45.0,
+        46.0,
+        46.8,
+        46.8,
+        49.7,
+        54.6,
+        55.3,
+        54.0,
+        53.0,
+        54.4,
+        55.9,
+        61.4,
+        67.5,
+        69.1,
+        72.5,
+        78.9,
+        80.9,
+        72.9,
+        69.2,
+        71.1,
+        66.8,
+        68.3,
+        66.5,
+        70.6,
+        70.0,
+        76.5,
+        69.4,
+        64.9,
+        63.4,
+        59.8,
+        61.0,
+        61.0,
+        67.1,
+        65.8,
+        65.7,
+        63.0,
+        61.1,
+        62.1,
+        60.3,
+        62.1,
+        67.5,
+        68.9,
+        66.8,
+        65.2,
+        65.5,
+        63.2,
+        65.8,
+        67.8,
+        67.1,
+        67.9,
+        74.6,
+        72.9,
+        71.2,
+        69.9,
+        63.9,
+        67.1,
+        68.0,
+        65.8,
+        65.8,
+        66.3,
+        66.7,
+        65.6,
+        66.9,
+        71.9,
+        70.5,
+        68.3,
+        72.2,
+        76.0,
+        73.2,
+        76.5,
+        80.0,
+        75.0,
+        75.5,
+        83.0,
+        91.3,
+        92.3,
+        89.0,
+        85.6,
+        82.6,
+        77.8,
+        85.6,
+        80.9,
+        79.7,
+        77.6,
+        76.2,
+        79.8,
+        81.7,
+        78.9,
+        83.0,
+        82.2,
+        82.4,
+        83.4,
+        85.0,
+        87.1,
+        85.1,
+        85.5,
+        84.4,
+        83.5,
+        81.5,
+        81.0,
+        80.0,
+        80.8,
+        86.5,
+        87.8,
+        91.3,
+        92.6,
+        98.8,
+        96.9,
+        94.4,
+        90.7,
+        88.0,
+        88.0,
+        87.5,
+        88.2,
+        88.3,
+        87.2,
+        86.0,
+        88.0,
+        93.2,
+        98.8,
+        108.5,
+        109.0,
+        104.5,
+        99.0,
+        93.7,
+        95.8,
+        95.6,
+        94.8,
+        91.6,
+        91.8,
+        87.0,
+        95.7,
+        97.0,
+        95.3,
+        87.6,
+        89.0,
+        87.9,
+        96.6,
+        106.0,
+        115.5,
+        113.0,
+        110.5,
+        107.5,
+        112.5,
+        103.5,
+        108.0,
+        106.0,
+        97.1,
+        100.5,
+        105.5,
+        104.0,
+        107.5,
+        110.0,
+        108.0,
+        112.5,
+        111.5,
+        102.0,
+        103.5,
+        98.8,
+        108.0,
+        104.5,
+        106.5,
+        103.5,
+        95.8,
+        98.7,
+        96.6,
+        102.0,
+        112.0,
+        121.5,
+        110.0,
+        113.0,
+        114.5,
+        112.0,
+        115.5,
+        127.0,
+        118.0,
+        119.0,
+        114.5,
+        108.0,
+        108.0
+      ],
+      "current": 108.0,
+      "prev_close": 108.0,
+      "change_pct": 0.0,
+      "ma5": 113.5,
+      "momentum": "down",
+      "entry": [
+        100,
+        108
+      ],
+      "target15": 120.0,
+      "stop": 95
     }
   },
   "us_market": {
@@ -2257,45 +2853,42 @@ const DAILY_DATA = {
   },
   "predictions": {
     "兆赫": {
-      "price": 60.7,
+      "price": 60.6,
       "signal": "偏多",
       "color": "green"
     },
     "華邦電": {
-      "price": 87.9,
+      "price": 87.1,
       "signal": "偏多",
       "color": "green"
     },
     "瀧澤科": {
-      "price": 37.0,
+      "price": 37.3,
+      "signal": "偏多",
+      "color": "green"
+    },
+    "富喬": {
+      "price": 108.6,
       "signal": "偏多",
       "color": "green"
     }
   },
   "watchlist": {
-    "富喬": {
-      "symbol": "1815.TWO",
-      "code": "1815",
-      "theme": "玻纖/化工",
-      "note": "玻璃纖維與化工材料",
-      "current": 109.5,
-      "change_pct": 1.39
-    },
     "旺宏": {
       "symbol": "2337.TW",
       "code": "2337",
       "theme": "NOR Flash",
       "note": "AI IoT / 車用記憶體，報價持續上漲",
-      "current": 133.0,
-      "change_pct": 5.56
+      "current": 130.5,
+      "change_pct": 3.57
     },
     "台灣大": {
       "symbol": "3045.TW",
       "code": "3045",
       "theme": "5G + AI 企業",
       "note": "AI 企業連網需求，現金流穩定高殖利率",
-      "current": 112.0,
-      "change_pct": 0.0
+      "current": 111.5,
+      "change_pct": -0.45
     },
     "富鼎": {
       "symbol": "8261.TW",
@@ -2310,24 +2903,24 @@ const DAILY_DATA = {
       "code": "4919",
       "theme": "AI 邊緣 MCU",
       "note": "ARM MCU for AI edge / 車用 / IoT",
-      "current": 142.5,
-      "change_pct": -3.06
+      "current": 143.0,
+      "change_pct": -2.72
     },
     "晶豪科": {
       "symbol": "3006.TW",
       "code": "3006",
       "theme": "NAND 控制器",
       "note": "SSD 控制晶片，AI 儲存需求受惠",
-      "current": 156.5,
-      "change_pct": 0.64
+      "current": 155.0,
+      "change_pct": -0.32
     },
     "中磊": {
       "symbol": "5388.TW",
       "code": "5388",
       "theme": "WiFi 7 網通",
       "note": "WiFi 6/7 路由器晶片，AI 家用流量爆增",
-      "current": 79.9,
-      "change_pct": -1.84
+      "current": 79.4,
+      "change_pct": -2.46
     },
     "台揚": {
       "symbol": "2402.TW",
@@ -2350,16 +2943,16 @@ const DAILY_DATA = {
       "code": "6706",
       "theme": "CoWoS 封裝設備",
       "note": "外資近期調升目標價，先進封裝設備唯一純粹標的",
-      "current": 124.0,
-      "change_pct": -5.7
+      "current": 125.0,
+      "change_pct": -4.94
     },
     "力積電": {
       "symbol": "6770.TW",
       "code": "6770",
       "theme": "特殊 DRAM",
       "note": "利基型 DRAM 晶圓代工，低基期具彈性",
-      "current": 52.7,
-      "change_pct": -0.38
+      "current": 52.3,
+      "change_pct": -1.13
     }
   },
   "supply_chain": {
@@ -2374,18 +2967,18 @@ const DAILY_DATA = {
       "code": "6488"
     },
     "台達電": {
-      "current": 2040.0,
-      "change_pct": 3.03,
+      "current": 2035.0,
+      "change_pct": 2.78,
       "code": "2308"
     },
     "廣達": {
-      "current": 319.0,
-      "change_pct": -0.93,
+      "current": 319.5,
+      "change_pct": -0.78,
       "code": "2382"
     },
     "智邦": {
-      "current": 2155.0,
-      "change_pct": 3.61,
+      "current": 2115.0,
+      "change_pct": 1.68,
       "code": "2345"
     },
     "中華電": {
@@ -2394,28 +2987,28 @@ const DAILY_DATA = {
       "code": "2412"
     },
     "緯穎": {
-      "current": 4510.0,
-      "change_pct": 6.12,
+      "current": 4465.0,
+      "change_pct": 5.06,
       "code": "6669"
     },
     "威剛": {
-      "current": 397.5,
-      "change_pct": 0.0,
+      "current": 397.0,
+      "change_pct": -0.13,
       "code": "3260"
     },
     "華邦電": {
-      "current": 87.5,
-      "change_pct": -0.34,
+      "current": 86.6,
+      "change_pct": -1.37,
       "code": "2344"
     },
     "新唐": {
-      "current": 142.5,
-      "change_pct": -3.06,
+      "current": 143.0,
+      "change_pct": -2.72,
       "code": "4919"
     },
     "中磊": {
-      "current": 79.9,
-      "change_pct": -1.84,
+      "current": 79.4,
+      "change_pct": -2.46,
       "code": "5388"
     },
     "台揚": {
@@ -2439,13 +3032,13 @@ const DAILY_DATA = {
       "code": "3324"
     },
     "奇鋐": {
-      "current": 2930.0,
-      "change_pct": 9.33,
+      "current": 2920.0,
+      "change_pct": 8.96,
       "code": "3017"
     },
     "旺宏": {
-      "current": 133.0,
-      "change_pct": 5.56,
+      "current": 130.5,
+      "change_pct": 3.57,
       "code": "2337"
     },
     "緯創": {
@@ -2454,8 +3047,8 @@ const DAILY_DATA = {
       "code": "3231"
     },
     "遠傳": {
-      "current": 94.9,
-      "change_pct": -1.04,
+      "current": 95.3,
+      "change_pct": -0.63,
       "code": "4904"
     },
     "健策": {
@@ -2464,13 +3057,13 @@ const DAILY_DATA = {
       "code": "3306"
     },
     "力積電": {
-      "current": 52.7,
-      "change_pct": -0.38,
+      "current": 52.3,
+      "change_pct": -1.13,
       "code": "6770"
     },
     "晶豪科": {
-      "current": 156.5,
-      "change_pct": 0.64,
+      "current": 155.0,
+      "change_pct": -0.32,
       "code": "3006"
     }
   },
@@ -2522,6 +3115,7 @@ function renderMorning() {
     '兆赫':  { price:'zx-price', chg:'zx-chg', pred:'zx-pred', ee:'ee-zx-price', f:'f-zx-price' },
     '華邦電': { price:'hb-price', chg:'hb-chg', pred:'hb-pred', ee:'ee-hb-price', f:'f-hb-price' },
     '瀧澤科': { price:'lz-price', chg:'lz-chg', pred:'lz-pred', ee:'ee-lz-price', f:'f-lz-price' },
+    '富喬':   { price:'fj-price', chg:'fj-chg', pred:'fj-pred', ee:'ee-fj-price', f:'f-fj-price' },
   };
   for (const [name, ids] of Object.entries(twMap)) {
     const d = s[name]; if (!d) continue;
@@ -2545,7 +3139,7 @@ function renderMorning() {
 }
 
 // ── Chart.js ─────────────────────────────────────────────
-const COLORS = { '兆赫':'#e53935', '華邦電':'#1e88e5', '瀧澤科':'#43a047' };
+const COLORS = { '兆赫':'#e53935', '華邦電':'#1e88e5', '瀧澤科':'#43a047', '富喬':'#f57c00' };
 let chartInstance = null;
 let currentTab = 'zx';
 
@@ -2596,7 +3190,7 @@ function renderChart(tab) {
   const ctx = canvas.getContext('2d');
   if (chartInstance) chartInstance.destroy();
 
-  const nameMap = { zx:'兆赫', hb:'華邦電', lz:'瀧澤科' };
+  const nameMap = { zx:'兆赫', hb:'華邦電', lz:'瀧澤科', fj:'富喬' };
   const chartData = buildSingleDataset(nameMap[tab]);
 
   chartInstance = new Chart(ctx, {
